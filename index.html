@@ -889,9 +889,18 @@ const CUR_DECIMALS = { JPY: 0 };
 
 const CHANGELOG = [
   {
-    version: 'V0.13',
+    version: 'V0.14',
     date: '2026-03-31',
     latest: true,
+    changes: [
+      'Bug 修复：新增预算账户时，开户余额自动计入「可分配金额」（对应 YNAB Inflow: Ready to Assign 逻辑）',
+      'Bug 修复：历史已存账户若无收入记录，自动补录开户余额，存量数据无需手动重录',
+    ]
+  },
+  {
+    version: 'V0.13',
+    date: '2026-03-31',
+    latest: false,
     changes: [
       'Bug 修复：添加收入后 Reflect 报表即时刷新，无需手动切换页签',
     ]
@@ -1146,8 +1155,22 @@ function loadState() {
     state.allocations  = d.allocations  || {};
     state.targets      = d.targets      || {};
     state.transactions = d.transactions || [];
+    // Migration: budget accounts with positive balance but no income entry → backfill opening balance
+    migrateOpeningBalances();
     return true;
   } catch { return false; }
+}
+
+function migrateOpeningBalances() {
+  const budgetTypes = new Set(['bank','alipay','cash','savings']);
+  state.accounts
+    .filter(a => budgetTypes.has(a.type) && a.balance > 0)
+    .forEach(a => {
+      const hasIncome = state.incomes.some(i => i.accountId === a.id);
+      if (!hasIncome) {
+        state.incomes.push({ id: uid(), accountId: a.id, amount: a.balance, desc: `${a.name} 开户余额`, month: state.currentMonth });
+      }
+    });
 }
 
 // ══════════════════════════════════════════════
@@ -2800,6 +2823,10 @@ function addAccount() {
   const newId = uid();
   const billingDay = type === 'credit' ? (parseInt(document.getElementById('acc-billing-day').value) || 12) : undefined;
   state.accounts.push({ id: newId, name, type, currency, balance, ...(billingDay ? { billingDay } : {}) });
+  // Opening balance feeds into Ready to Assign (budget accounts only, not credit/tracking)
+  if (BUDGET_ACC_TYPES.has(type) && type !== 'credit' && balance > 0) {
+    state.incomes.push({ id: uid(), accountId: newId, amount: balance, desc: `${name} 开户余额`, month: state.currentMonth });
+  }
   // Auto-create Credit Card Payments category for credit card accounts
   if (type === 'credit') {
     let ccGroup = state.groups.find(g => g.isCreditCardGroup);
