@@ -889,9 +889,17 @@ const CUR_DECIMALS = { JPY: 0 };
 
 const CHANGELOG = [
   {
-    version: 'V0.14',
+    version: 'V0.15',
     date: '2026-03-31',
     latest: true,
+    changes: [
+      'Bug 修复：「可分配金额」计算方式改为 账户余额总和 − 已分配到类别的金额，与账户余额始终保持一致，不再依赖收入记录是否完整',
+    ]
+  },
+  {
+    version: 'V0.14',
+    date: '2026-03-31',
+    latest: false,
     changes: [
       'Bug 修复：新增预算账户时，开户余额自动计入「可分配金额」（对应 YNAB Inflow: Ready to Assign 逻辑）',
       'Bug 修复：历史已存账户若无收入记录，自动补录开户余额，存量数据无需手动重录',
@@ -1380,7 +1388,17 @@ function incomeThisMonthHKD() {
 function allocatedThisMonthHKD() {
   return state.categories.reduce((s, c) => s + catAllocHKD(c.id), 0);
 }
-function readyToAssignHKD() { return incomeThisMonthHKD() - allocatedThisMonthHKD(); }
+function readyToAssignHKD() {
+  // Accounting identity: ready = budget funds − what's already in envelopes
+  // This stays correct regardless of whether income was explicitly recorded.
+  const budgetFunds = state.accounts
+    .filter(a => BUDGET_ACC_TYPES.has(a.type) && a.type !== 'credit')
+    .reduce((s, a) => s + toBase(a.balance, a.currency), 0);
+  const inEnvelopes = state.categories
+    .filter(c => !c.creditCardAccountId)
+    .reduce((s, c) => s + catAvailHKD(c.id), 0);
+  return budgetFunds - inEnvelopes;
+}
 
 // ══════════════════════════════════════════════
 //  Tabs / Filter
