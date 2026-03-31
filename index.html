@@ -79,6 +79,20 @@
     .income-summary { margin-left: auto; text-align: right; }
     .income-summary .a-label { font-size: 0.72rem; color: #888; }
     .income-summary .val { font-size: 0.95rem; font-weight: 600; color: #444; }
+    /* Assign quick-assign button + dropdown */
+    .assign-quick-wrap { position: relative; }
+    .assign-quick-btn { display: flex; align-items: center; gap: 6px; background: #27ae60; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .assign-quick-btn:hover { background: #219a52; }
+    .assign-quick-dropdown { display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 200; background: #1e2b38; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.35); width: 260px; overflow: hidden; }
+    .assign-quick-dropdown.open { display: block; }
+    .assign-dd-section { padding: 8px 0; }
+    .assign-dd-section + .assign-dd-section { border-top: 1px solid rgba(255,255,255,0.08); }
+    .assign-dd-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #6b8fa8; padding: 6px 14px 4px; }
+    .assign-dd-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; color: #d4e8f7; font-size: 0.85rem; gap: 8px; }
+    .assign-dd-row:hover { background: rgba(255,255,255,0.07); }
+    .assign-dd-row.danger:hover { background: rgba(231,76,60,0.15); color: #e74c3c; }
+    .assign-dd-row.warn:hover { background: rgba(230,126,34,0.12); color: #e67e22; }
+    .assign-dd-amt { font-size: 0.8rem; font-weight: 600; color: #7fb3d3; white-space: nowrap; }
 
     /* ── Filter bar ── */
     .filter-bar { background: white; border-bottom: 1px solid #edf0f4; padding: 8px 20px; display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
@@ -500,6 +514,25 @@
             <div class="a-label">可分配金额</div>
             <div id="readyToAssign" class="a-amount green">HK$0.00</div>
           </div>
+          <div class="assign-quick-wrap" id="assignQuickWrap">
+            <button class="assign-quick-btn" onclick="toggleAssignMenu()">⚡ 快速分配 ▾</button>
+            <div class="assign-quick-dropdown" id="assignDropdown">
+              <div class="assign-dd-section">
+                <div class="assign-dd-label">⚡ 自动分配</div>
+                <button class="assign-dd-row" onclick="applyAssign('underfunded')"><span>资金不足类别</span><span class="assign-dd-amt" id="prev-underfunded">--</span></button>
+                <button class="assign-dd-row" onclick="applyAssign('lastMonthAssigned')"><span>上月已分配金额</span><span class="assign-dd-amt" id="prev-lastMonthAssigned">--</span></button>
+                <button class="assign-dd-row" onclick="applyAssign('lastMonthSpent')"><span>上月实际消费</span><span class="assign-dd-amt" id="prev-lastMonthSpent">--</span></button>
+                <button class="assign-dd-row" onclick="applyAssign('avgAssigned')"><span>近3月平均分配</span><span class="assign-dd-amt" id="prev-avgAssigned">--</span></button>
+                <button class="assign-dd-row" onclick="applyAssign('avgSpent')"><span>近3月平均消费</span><span class="assign-dd-amt" id="prev-avgSpent">--</span></button>
+              </div>
+              <div class="assign-dd-section">
+                <div class="assign-dd-label">调整</div>
+                <button class="assign-dd-row warn" onclick="applyAssign('reduceOverfunding')"><span>减少超额分配</span><span class="assign-dd-amt" id="prev-reduceOverfunding">--</span></button>
+                <button class="assign-dd-row warn" onclick="applyAssign('resetAvailable')"><span>清零可用余额</span><span class="assign-dd-amt" id="prev-resetAvailable">--</span></button>
+                <button class="assign-dd-row danger" onclick="applyAssign('resetAssigned')"><span>清零本月分配</span><span class="assign-dd-amt" id="prev-resetAssigned">--</span></button>
+              </div>
+            </div>
+          </div>
           <div class="assign-hint">将金额分配到各类别，直到可分配金额归零</div>
           <div class="income-summary">
             <div class="a-label">本月收入</div>
@@ -889,9 +922,17 @@ const CUR_DECIMALS = { JPY: 0 };
 
 const CHANGELOG = [
   {
-    version: 'V0.15',
+    version: 'V0.16',
     date: '2026-03-31',
     latest: true,
+    changes: [
+      '新功能：⚡ 快速分配按钮，支持 8 种自动分配模式（资金不足、上月已分配、上月消费、近3月平均分配/消费、减少超额、清零可用、清零分配）',
+    ]
+  },
+  {
+    version: 'V0.15',
+    date: '2026-03-31',
+    latest: false,
     changes: [
       'Bug 修复：「可分配金额」计算方式改为 账户余额总和 − 已分配到类别的金额，与账户余额始终保持一致，不再依赖收入记录是否完整',
     ]
@@ -1398,6 +1439,118 @@ function readyToAssignHKD() {
     .filter(c => !c.creditCardAccountId)
     .reduce((s, c) => s + catAvailHKD(c.id), 0);
   return budgetFunds - inEnvelopes;
+}
+
+// ══════════════════════════════════════════════
+//  Quick Assign
+// ══════════════════════════════════════════════
+function catSpentForMonthHKD(catId, month) {
+  return state.transactions
+    .filter(t => t.categoryId === catId && txnMonth(t) === month)
+    .reduce((s, t) => {
+      const cur = t.currency || (state.accounts.find(a => a.id === t.accountId)?.currency || 'HKD');
+      return s + toBase(t.outflow || 0, cur);
+    }, 0);
+}
+
+function computeAssignTargets(mode) {
+  const cats = state.categories.filter(c => !c.creditCardAccountId);
+  const prev = prevMonth(state.currentMonth);
+  const prev2 = prevMonth(prev);
+  const prev3 = prevMonth(prev2);
+  const result = {};
+
+  switch (mode) {
+    case 'underfunded':
+      cats.forEach(c => {
+        const target = catTargetHKD(c.id);
+        if (target > 0) {
+          const avail = catAvailHKD(c.id);
+          if (avail < target) result[c.id] = catAllocHKD(c.id) + (target - avail);
+        }
+      });
+      break;
+
+    case 'lastMonthAssigned':
+      cats.forEach(c => { result[c.id] = catAllocHKD(c.id, prev); });
+      break;
+
+    case 'lastMonthSpent':
+      cats.forEach(c => { result[c.id] = catSpentForMonthHKD(c.id, prev); });
+      break;
+
+    case 'avgAssigned':
+      cats.forEach(c => {
+        result[c.id] = Math.round((catAllocHKD(c.id, prev) + catAllocHKD(c.id, prev2) + catAllocHKD(c.id, prev3)) / 3);
+      });
+      break;
+
+    case 'avgSpent':
+      cats.forEach(c => {
+        result[c.id] = Math.round((catSpentForMonthHKD(c.id, prev) + catSpentForMonthHKD(c.id, prev2) + catSpentForMonthHKD(c.id, prev3)) / 3);
+      });
+      break;
+
+    case 'reduceOverfunding':
+      cats.forEach(c => {
+        const target = catTargetHKD(c.id);
+        if (target > 0) {
+          const avail = catAvailHKD(c.id);
+          if (avail > target) result[c.id] = Math.max(0, catAllocHKD(c.id) - (avail - target));
+        }
+      });
+      break;
+
+    case 'resetAvailable':
+      // Set alloc so that avail = 0: alloc = outflow - leftover
+      cats.forEach(c => { result[c.id] = Math.max(0, catOutflowHKD(c.id) - catLeftOverHKD(c.id)); });
+      break;
+
+    case 'resetAssigned':
+      cats.forEach(c => { result[c.id] = 0; });
+      break;
+  }
+  return result;
+}
+
+function computeAssignDelta(mode) {
+  const targets = computeAssignTargets(mode);
+  return Object.entries(targets).reduce((s, [id, v]) => s + (v - catAllocHKD(id)), 0);
+}
+
+function toggleAssignMenu() {
+  const dd = document.getElementById('assignDropdown');
+  if (!dd) return;
+  if (!dd.classList.contains('open')) {
+    ['underfunded','lastMonthAssigned','lastMonthSpent','avgAssigned','avgSpent','reduceOverfunding','resetAvailable','resetAssigned'].forEach(m => {
+      const delta = computeAssignDelta(m);
+      const el = document.getElementById('prev-' + m);
+      if (!el) return;
+      const abs = Math.abs(delta);
+      el.textContent = delta === 0 ? '--' : (delta > 0 ? '+' : '-') + fmt(fromBase(abs, state.mainCurrency));
+      el.style.color = delta < 0 ? '#27ae60' : delta > 0 ? '#f0a14f' : '#6b8fa8';
+    });
+  }
+  dd.classList.toggle('open');
+  if (dd.classList.contains('open')) {
+    setTimeout(() => document.addEventListener('click', closeAssignMenu, { once: true }), 0);
+  }
+}
+
+function closeAssignMenu(e) {
+  const wrap = document.getElementById('assignQuickWrap');
+  if (wrap && !wrap.contains(e.target)) document.getElementById('assignDropdown')?.classList.remove('open');
+}
+
+function applyAssign(mode) {
+  const targets = computeAssignTargets(mode);
+  Object.entries(targets).forEach(([catId, newAlloc]) => {
+    const key = `${state.currentMonth}-${catId}`;
+    if (newAlloc <= 0) delete state.allocations[key];
+    else state.allocations[key] = newAlloc;
+  });
+  document.getElementById('assignDropdown')?.classList.remove('open');
+  saveState(); render();
 }
 
 // ══════════════════════════════════════════════
