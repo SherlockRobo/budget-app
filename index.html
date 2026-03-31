@@ -22,7 +22,16 @@
     .rate-status { font-size: 0.7rem; color: #556b7a; white-space: nowrap; }
     .rate-status.ok { color: #5a9e7a; }
     .rate-status.err { color: #c0392b; }
-    header .actions { margin-left: auto; display: flex; gap: 8px; flex-shrink: 0; }
+    header .actions { margin-left: auto; display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
+    .save-menu-wrap { position: relative; }
+    .save-status-btn { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); color: #c5d8e4; border-radius: 6px; padding: 5px 10px; font-size: 0.78rem; cursor: pointer; white-space: nowrap; }
+    .save-status-btn:hover { background: rgba(255,255,255,0.14); }
+    .save-dot { width: 7px; height: 7px; border-radius: 50%; background: #3aaf85; flex-shrink: 0; }
+    .save-dot.unsaved { background: #f0a500; }
+    .save-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 6px); background: #253545; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.3); min-width: 140px; z-index: 200; }
+    .save-dropdown.open { display: block; }
+    .save-dropdown button, .save-dropdown label { display: block; width: 100%; text-align: left; padding: 10px 16px; font-size: 0.82rem; color: #c5d8e4; background: none; border: none; cursor: pointer; white-space: nowrap; }
+    .save-dropdown button:hover, .save-dropdown label:hover { background: rgba(255,255,255,0.08); color: white; }
 
     /* ── Layout ── */
     .app { display: flex; flex: 1; overflow: hidden; }
@@ -111,6 +120,7 @@
     .status-badge.funded { background: #e6f7ef; color: #27ae60; }
     .status-badge.underfunded { background: #fff4e0; color: #e67e22; }
     .status-badge.overfunded { background: #e8f0fe; color: #3b5bdb; }
+    .status-badge.cc-payment { background: #f0f0ff; color: #5c5cdb; }
     .delete-cat-btn { flex-shrink: 0; background: none; border: none; color: #ddd; cursor: pointer; font-size: 0.7rem; padding: 1px 3px; border-radius: 3px; opacity: 0; }
     .cat-item:hover .delete-cat-btn { opacity: 1; }
     .delete-cat-btn:hover { color: #e74c3c; }
@@ -121,7 +131,9 @@
     .progress-fill.funded { background: #3aaf85; }
     .progress-fill.underfunded { background: #f0a500; }
     .progress-fill.overfunded { background: #5c7cfa; }
+    .progress-fill.cc-payment { background: #7b7bdb; }
     .progress-fill.none { background: #e0e0e0; }
+    .cc-auto-label { font-size: 0.68rem; color: #3aaf85; margin-top: 3px; }
 
     .budget-input { width: 84px; padding: 4px 6px; border: 1px solid transparent; border-radius: 4px; font-size: 0.83rem; text-align: right; background: transparent; cursor: pointer; color: #333; }
     .budget-input:hover { border-color: #dde3ea; background: #f9fafb; }
@@ -276,6 +288,140 @@
     .txn-edit-actions { padding: 5px 12px 7px; background: #f0faf6; border-bottom: 2px solid #3aaf85; display: flex; gap: 6px; min-width: 680px; }
 
     .txn-empty { text-align: center; padding: 40px 20px; color: #bbb; font-size: 0.87rem; line-height: 1.7; }
+
+    /* ── Account sub-tabs ── */
+    .acc-subtab-bar { background: white; border-bottom: 1px solid #e0e6ed; display: flex; padding: 0 14px; flex-shrink: 0; }
+    .acc-subtab { padding: 8px 14px; font-size: 0.82rem; font-weight: 500; background: none; border: none; cursor: pointer; color: #888; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .acc-subtab:hover { color: #444; }
+    .acc-subtab.active { color: #3aaf85; border-bottom-color: #3aaf85; }
+    .acc-subpanel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+    .acc-subpanel.active { display: flex; }
+
+    /* ── Account card list ── */
+    .acc-list-wrap { flex: 1; overflow-y: auto; padding: 16px 20px 28px; }
+    .acc-section-title { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: 600; padding: 4px 0 10px; }
+    .acc-section-title:not(:first-child) { margin-top: 16px; }
+    .acc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+    .acc-card { background: white; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); display: flex; align-items: center; gap: 12px; transition: box-shadow 0.15s; }
+    .acc-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.12); }
+    .acc-card-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .acc-card-info { flex: 1; min-width: 0; }
+    .acc-card-name { font-size: 0.88rem; font-weight: 600; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .acc-card-type { font-size: 0.71rem; color: #aaa; margin-top: 2px; }
+    .acc-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .acc-card-balance { font-size: 0.98rem; font-weight: 700; color: #27ae60; white-space: nowrap; }
+    .acc-card-balance.negative { color: #e74c3c; }
+    .acc-card-cur { font-size: 0.68rem; color: #aaa; }
+    .acc-card-edit-btn { background: none; border: 1px solid #e0e6ed; color: #888; cursor: pointer; font-size: 0.73rem; padding: 3px 9px; border-radius: 5px; white-space: nowrap; opacity: 0; transition: opacity 0.15s; }
+    .acc-card:hover .acc-card-edit-btn { opacity: 1; }
+    .acc-card-edit-btn:hover { border-color: #3aaf85; color: #3aaf85; }
+
+    /* ── Sidebar account sub-labels ── */
+    .sidebar-sub-label { font-size: 0.61rem; text-transform: uppercase; letter-spacing: 0.8px; color: #364f5f; padding: 8px 14px 3px; font-weight: 600; }
+
+    /* ── Reflect tab ── */
+    .reflect-topbar { display: flex; align-items: center; justify-content: space-between; background: white; border-bottom: 1px solid #e0e6ed; padding: 0 14px 0 0; flex-shrink: 0; }
+    .reflect-scroll { flex: 1; overflow-y: auto; padding: 20px 24px 40px; }
+    .reflect-section { margin-bottom: 32px; }
+    .reflect-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .reflect-section-header h3 { font-size: 0.9rem; font-weight: 700; color: #333; letter-spacing: 0.3px; }
+    .reflect-month-nav { display: flex; align-items: center; gap: 6px; }
+    .reflect-month-nav button { background: none; border: 1px solid #e0e6ed; color: #888; cursor: pointer; width: 26px; height: 26px; border-radius: 5px; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; }
+    .reflect-month-nav button:hover { border-color: #3aaf85; color: #3aaf85; }
+    .reflect-month-nav span { font-size: 0.85rem; font-weight: 600; color: #333; min-width: 100px; text-align: center; }
+
+    .reflect-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; margin-bottom: 4px; }
+    .reflect-card { background: white; border-radius: 10px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .rc-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: #999; margin-bottom: 8px; }
+    .rc-amount { font-size: 1.28rem; font-weight: 700; line-height: 1.2; }
+    .rc-amount.green { color: #27ae60; }
+    .rc-amount.red   { color: #e74c3c; }
+    .rc-amount.dark  { color: #333; }
+    .rc-sub { font-size: 0.72rem; color: #aaa; margin-top: 5px; }
+    .ring-card { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .ring-svg { width: 68px; height: 68px; }
+
+    .reflect-cat-list { display: flex; flex-direction: column; gap: 6px; }
+    .reflect-cat-row { background: white; border-radius: 8px; padding: 11px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .rcat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+    .rcat-left { display: flex; align-items: center; gap: 7px; min-width: 0; }
+    .rcat-name { font-size: 0.84rem; font-weight: 600; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rcat-group { font-size: 0.7rem; color: #bbb; font-weight: 400; white-space: nowrap; flex-shrink: 0; }
+    .rcat-over-badge { font-size: 0.63rem; background: #fdf0ef; color: #e74c3c; padding: 1px 6px; border-radius: 10px; font-weight: 600; flex-shrink: 0; }
+    .rcat-amounts { display: flex; align-items: baseline; gap: 3px; font-size: 0.82rem; flex-shrink: 0; white-space: nowrap; }
+    .rcat-spent { font-weight: 600; color: #333; }
+    .rcat-spent.red { color: #e74c3c; }
+    .rcat-sep { color: #ddd; font-size: 0.75rem; }
+    .rcat-alloc { color: #aaa; }
+    .rcat-bar-wrap { height: 5px; background: #f0f4f8; border-radius: 3px; overflow: hidden; margin-bottom: 5px; }
+    .rcat-bar { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+    .rcat-footer { display: flex; justify-content: space-between; font-size: 0.7rem; color: #aaa; }
+    .rcat-footer .avail { color: #27ae60; }
+    .rcat-footer .over  { color: #e74c3c; }
+    .reflect-empty { text-align: center; padding: 48px 20px; color: #bbb; font-size: 0.87rem; line-height: 1.7; }
+    .reflect-group-header { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: #aaa; font-weight: 600; padding: 16px 0 6px; }
+    .reflect-group-header:first-child { padding-top: 0; }
+
+    /* ── Net Worth ── */
+    .nw-hero { background: white; border-radius: 12px; padding: 20px 22px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 14px; }
+    .nw-hero-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+    .nw-hero-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.6px; color: #999; margin-bottom: 6px; }
+    .nw-hero-amount { font-size: 2rem; font-weight: 800; line-height: 1; color: #1f2b35; }
+    .nw-hero-change { text-align: right; }
+    .nw-hero-change-val { font-size: 0.92rem; font-weight: 700; }
+    .nw-hero-change-val.up   { color: #27ae60; }
+    .nw-hero-change-val.down { color: #e74c3c; }
+    .nw-hero-change-pct { font-size: 0.75rem; color: #aaa; margin-top: 3px; }
+    .nw-stats-row { display: flex; gap: 24px; border-top: 1px solid #f0f4f8; padding-top: 14px; }
+    .nw-stat { display: flex; align-items: center; gap: 8px; }
+    .nw-stat-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+    .nw-stat-label { font-size: 0.7rem; color: #aaa; }
+    .nw-stat-val { font-size: 0.9rem; font-weight: 700; color: #333; }
+    .nw-alloc-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .nw-group { margin-bottom: 14px; }
+    .nw-group-header { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: #aaa; font-weight: 600; padding-bottom: 6px; border-bottom: 1px solid #f0f4f8; margin-bottom: 6px; display: flex; justify-content: space-between; }
+    .nw-group-total { font-weight: 700; }
+    .nw-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; background: white; border-radius: 7px; margin-bottom: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .nw-row-left { display: flex; align-items: center; gap: 8px; font-size: 0.84rem; color: #333; }
+    .nw-row-amt { font-size: 0.84rem; font-weight: 600; white-space: nowrap; }
+    .nw-row-amt.pos { color: #27ae60; }
+    .nw-row-amt.neg { color: #e74c3c; }
+    .nw-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .nw-table th { text-align: left; font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.5px; color: #aaa; font-weight: 600; padding: 0 0 8px; border-bottom: 1px solid #e8edf2; }
+    .nw-table th:not(:first-child) { text-align: right; }
+    .nw-table td { padding: 9px 0; border-bottom: 1px solid #f4f7fa; color: #444; }
+    .nw-table td:not(:first-child) { text-align: right; font-weight: 600; }
+    .nw-table tr:last-child td { border-bottom: none; }
+    .nw-change-up   { color: #27ae60; }
+    .nw-change-down { color: #e74c3c; }
+
+    /* ── Age of Money ── */
+    .aom-hero { background: white; border-radius: 12px; padding: 22px 24px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 14px; display: flex; align-items: center; gap: 28px; }
+    .aom-score-wrap { text-align: center; flex-shrink: 0; }
+    .aom-score { font-size: 3rem; font-weight: 800; line-height: 1; }
+    .aom-score.green  { color: #27ae60; }
+    .aom-score.yellow { color: #f0a500; }
+    .aom-score.red    { color: #e74c3c; }
+    .aom-score-unit { font-size: 0.85rem; font-weight: 600; color: #aaa; margin-top: 4px; }
+    .aom-divider { width: 1px; height: 72px; background: #f0f4f8; flex-shrink: 0; }
+    .aom-detail { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .aom-detail-row { display: flex; justify-content: space-between; align-items: center; }
+    .aom-detail-label { font-size: 0.72rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.4px; }
+    .aom-detail-val { font-size: 0.9rem; font-weight: 700; color: #333; }
+    .aom-meter { height: 8px; background: #f0f4f8; border-radius: 4px; overflow: hidden; margin-top: 14px; }
+    .aom-meter-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+    .aom-tip { font-size: 0.75rem; color: #aaa; margin-top: 8px; line-height: 1.5; }
+
+    /* ── Trends chart ── */
+    .trends-span-toggle { display: flex; gap: 4px; }
+    .trend-span-btn { padding: 4px 12px; border-radius: 20px; border: 1px solid #e0e6ed; background: white; font-size: 0.75rem; color: #888; cursor: pointer; }
+    .trend-span-btn.active { background: #3aaf85; border-color: #3aaf85; color: white; }
+    .trend-span-btn:hover:not(.active) { border-color: #3aaf85; color: #3aaf85; }
+    .chart-card { background: white; border-radius: 10px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .chart-card-title { font-size: 0.78rem; font-weight: 600; color: #555; margin-bottom: 12px; }
+    .chart-legend { display: flex; align-items: center; font-size: 0.75rem; color: #666; margin-bottom: 12px; }
+    .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .chart-empty { text-align: center; padding: 40px 20px; color: #bbb; font-size: 0.85rem; }
   </style>
 </head>
 <body>
@@ -303,6 +449,17 @@
   </div>
   <span class="rate-status" id="rateStatus">汇率加载中…</span>
   <div class="actions">
+    <div class="save-menu-wrap" id="saveMenuWrap">
+      <button class="save-status-btn" onclick="toggleSaveMenu()" id="saveStatusBtn" title="备份 / 恢复">
+        <span class="save-dot" id="saveDot"></span>
+        <span id="saveStatusText">已保存</span>
+        <span style="font-size:0.75rem;opacity:0.6;margin-left:2px;">▾</span>
+      </button>
+      <div class="save-dropdown" id="saveDropdown">
+        <button onclick="exportData();toggleSaveMenu()">⬇ 导出备份</button>
+        <label>⬆ 导入备份<input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="importData(this)"></label>
+      </div>
+    </div>
     <button class="btn btn-ghost" onclick="showModal('addAccount')">+ 账户</button>
     <button class="btn btn-primary" onclick="openAddIncome()">+ 录入收入</button>
   </div>
@@ -328,7 +485,9 @@
   <main class="main">
     <div class="tab-bar">
       <button class="tab-btn active" onclick="switchTab('budget', this)">预算</button>
+      <button class="tab-btn" onclick="switchTab('transactions', this)">交易记录</button>
       <button class="tab-btn" onclick="switchTab('accounts', this)">账户</button>
+      <button class="tab-btn" onclick="switchTab('reflect', this)">Reflect</button>
       <button class="tab-btn" onclick="switchTab('changelog', this)">版本历史</button>
     </div>
 
@@ -416,8 +575,8 @@
         </div>
       </div>
 
-      <!-- Accounts / Transactions panel -->
-      <div id="panel-accounts" class="tab-panel">
+      <!-- Transactions panel -->
+      <div id="panel-transactions" class="tab-panel">
         <!-- Balance bar -->
         <div class="balance-bar">
           <div class="bal-block">
@@ -452,6 +611,100 @@
         </div>
       </div>
 
+      <!-- Accounts panel -->
+      <div id="panel-accounts" class="tab-panel">
+        <div class="acc-list-wrap" id="accCardList"></div>
+      </div>
+
+      <!-- Reflect panel -->
+      <div id="panel-reflect" class="tab-panel">
+        <!-- Reflect month nav (shared across sub-tabs) -->
+        <div class="reflect-topbar">
+          <div class="acc-subtab-bar" style="border-bottom:none;padding:0;">
+            <button class="acc-subtab active" onclick="switchReflectTab('overview', this)">收支概览</button>
+            <button class="acc-subtab" onclick="switchReflectTab('categories', this)">分类支出</button>
+            <button class="acc-subtab" onclick="switchReflectTab('trends', this)">趋势图</button>
+            <button class="acc-subtab" onclick="switchReflectTab('networth', this)">净资产</button>
+            <button class="acc-subtab" onclick="switchReflectTab('aom', this)">账龄分析</button>
+          </div>
+          <div class="reflect-month-nav">
+            <button onclick="changeReflectMonth(-1)">‹</button>
+            <span id="reflectMonthLabel"></span>
+            <button onclick="changeReflectMonth(1)">›</button>
+          </div>
+        </div>
+
+        <!-- Sub-panel: 收支概览 -->
+        <div id="reflect-panel-overview" class="acc-subpanel active">
+          <div class="reflect-scroll">
+            <div class="reflect-section">
+              <div class="reflect-cards" id="reflectCards"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-panel: 分类支出 -->
+        <div id="reflect-panel-categories" class="acc-subpanel">
+          <div class="reflect-scroll">
+            <div class="reflect-section">
+              <div class="reflect-section-header" style="margin-bottom:10px;">
+                <span style="font-size:0.78rem;color:#aaa;">按分组显示本月预算 vs 实际支出</span>
+                <label style="font-size:0.76rem;color:#aaa;display:flex;align-items:center;gap:5px;cursor:pointer;">
+                  <input type="checkbox" id="reflectShowEmpty" onchange="renderReflect()" style="cursor:pointer;"> 显示未动账类别
+                </label>
+              </div>
+              <div class="reflect-cat-list" id="reflectCategoryList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-panel: 净资产 -->
+        <div id="reflect-panel-networth" class="acc-subpanel">
+          <div class="reflect-scroll">
+            <div id="nwHero"></div>
+            <div class="chart-card" style="margin-bottom:14px;" id="nwChartCard"></div>
+            <div class="chart-card" style="margin-bottom:14px;" id="nwTableCard"></div>
+            <div id="nwAccountGroups"></div>
+          </div>
+        </div>
+
+        <!-- Sub-panel: 账龄分析 -->
+        <div id="reflect-panel-aom" class="acc-subpanel">
+          <div class="reflect-scroll">
+            <div id="aomHero"></div>
+            <div class="chart-card" style="margin-bottom:14px;" id="aomSpendChart"></div>
+            <div class="chart-card" style="margin-bottom:14px;" id="aomCatChart"></div>
+          </div>
+        </div>
+
+        <!-- Sub-panel: 趋势图 -->
+        <div id="reflect-panel-trends" class="acc-subpanel">
+          <div class="reflect-scroll">
+            <!-- Span toggle -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+              <span style="font-size:0.85rem;font-weight:600;color:#333;">收支趋势</span>
+              <div class="trends-span-toggle">
+                <button class="trend-span-btn active" onclick="switchTrendsSpan(6, this)">近 6 个月</button>
+                <button class="trend-span-btn" onclick="switchTrendsSpan(12, this)">近 12 个月</button>
+              </div>
+            </div>
+            <!-- Bar chart: income vs expense -->
+            <div class="chart-card">
+              <div class="chart-legend">
+                <span class="legend-dot" style="background:#3aaf85;"></span>收入
+                <span class="legend-dot" style="background:#e74c3c;margin-left:12px;"></span>支出
+              </div>
+              <div id="trendBarChart" style="width:100%;"></div>
+            </div>
+            <!-- Line chart: savings rate -->
+            <div class="chart-card" style="margin-top:14px;">
+              <div class="chart-card-title">储蓄率趋势</div>
+              <div id="trendLineChart" style="width:100%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Changelog panel -->
       <div id="panel-changelog" class="tab-panel">
         <div style="flex:1; overflow-y:auto;">
@@ -473,11 +726,19 @@
     <div class="form-group"><label>账户名称</label><input type="text" id="acc-name" placeholder="如：汇丰香港、支付宝、现金"></div>
     <div class="form-row">
       <div class="form-group"><label>类型</label>
-        <select id="acc-type">
-          <option value="bank">🏦 储蓄卡</option>
-          <option value="alipay">📱 支付宝/微信</option>
-          <option value="cash">💵 现金</option>
-          <option value="savings">🏛️ 定期存款</option>
+        <select id="acc-type" onchange="document.getElementById('acc-billing-wrap').style.display=this.value==='credit'?'':'none'">
+          <optgroup label="预算账户">
+            <option value="bank">🏦 活期/储蓄卡</option>
+            <option value="credit">💳 信用卡</option>
+            <option value="alipay">📱 支付宝/微信</option>
+            <option value="cash">💵 现金</option>
+            <option value="savings">🏛️ 定期存款</option>
+          </optgroup>
+          <optgroup label="追踪账户">
+            <option value="investment">📈 投资账户</option>
+            <option value="asset">🏠 固定资产</option>
+            <option value="liability">📋 负债账户</option>
+          </optgroup>
         </select>
       </div>
       <div class="form-group"><label>币种</label>
@@ -494,6 +755,10 @@
       </div>
     </div>
     <div class="form-group"><label>当前余额</label><input type="number" id="acc-balance" placeholder="0.00" step="0.01" min="0"></div>
+    <div class="form-group cc-only-field" id="acc-billing-wrap" style="display:none;">
+      <label>账单日（每月几号）</label>
+      <input type="number" id="acc-billing-day" value="12" min="1" max="28" placeholder="12">
+    </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="hideModal('addAccount')">取消</button>
       <button class="btn btn-primary" onclick="addAccount()">添加账户</button>
@@ -509,11 +774,19 @@
     <div class="form-group"><label>账户名称</label><input type="text" id="edit-acc-name"></div>
     <div class="form-row">
       <div class="form-group"><label>类型</label>
-        <select id="edit-acc-type">
-          <option value="bank">🏦 储蓄卡</option>
-          <option value="alipay">📱 支付宝/微信</option>
-          <option value="cash">💵 现金</option>
-          <option value="savings">🏛️ 定期存款</option>
+        <select id="edit-acc-type" onchange="document.getElementById('edit-acc-billing-wrap').style.display=this.value==='credit'?'':'none'">
+          <optgroup label="预算账户">
+            <option value="bank">🏦 活期/储蓄卡</option>
+            <option value="credit">💳 信用卡</option>
+            <option value="alipay">📱 支付宝/微信</option>
+            <option value="cash">💵 现金</option>
+            <option value="savings">🏛️ 定期存款</option>
+          </optgroup>
+          <optgroup label="追踪账户">
+            <option value="investment">📈 投资账户</option>
+            <option value="asset">🏠 固定资产</option>
+            <option value="liability">📋 负债账户</option>
+          </optgroup>
         </select>
       </div>
       <div class="form-group"><label>币种</label>
@@ -526,6 +799,10 @@
       </div>
     </div>
     <div class="form-group"><label>当前余额（原始币种）</label><input type="number" id="edit-acc-balance" step="0.01"></div>
+    <div class="form-group" id="edit-acc-billing-wrap" style="display:none;">
+      <label>账单日（每月几号）</label>
+      <input type="number" id="edit-acc-billing-day" value="12" min="1" max="28">
+    </div>
     <div class="modal-actions-spread">
       <button class="btn btn-danger" onclick="deleteAccount()">删除账户</button>
       <div style="display:flex;gap:8px;">
@@ -603,15 +880,76 @@
 //  Constants
 // ══════════════════════════════════════════════
 const STORAGE_KEY = 'budgetApp_v2';
-const ACCOUNT_ICONS = { bank:'🏦', alipay:'📱', cash:'💵', savings:'🏛️' };
+const ACCOUNT_ICONS = { bank:'🏦', credit:'💳', alipay:'📱', cash:'💵', savings:'🏛️', investment:'📈', asset:'🏠', liability:'📋' };
+const ACC_TYPE_LABELS = { bank:'活期/储蓄卡', credit:'信用卡', alipay:'支付宝/微信', cash:'现金', savings:'定期存款', investment:'投资账户', asset:'固定资产', liability:'负债账户' };
+const BUDGET_ACC_TYPES   = new Set(['bank','credit','alipay','cash','savings']);
+const TRACKING_ACC_TYPES = new Set(['investment','asset','liability']);
 const CUR_SYMBOL = { HKD:'HK$', CNY:'¥', USD:'$', EUR:'€', GBP:'£', JPY:'¥', SGD:'S$', AUD:'A$' };
 const CUR_DECIMALS = { JPY: 0 };
 
 const CHANGELOG = [
   {
+    version: 'V0.12',
+    date: '2026-03-31',
+    latest: true,
+    changes: [
+      '信用卡账单日设置：添加/编辑信用卡账户时可设置账单日（默认 12 号）',
+      '双周期账单统计：详情面板新增「上期账单」与「本期账单」分段，按账单日自动划分消费区间',
+      '版本规则：每次修改自动递增 0.01 小版本号',
+    ]
+  },
+  {
+    version: 'V0.11',
+    date: '2026-03-31',
+    latest: false,
+    changes: [
+      '新增「已保存 HH:MM」状态指示器：右上角实时显示最近保存时间，绿点常亮',
+      '导出/导入功能整合进下拉菜单，减少顶栏按钮占用',
+    ]
+  },
+  {
+    version: 'V0.1',
+    date: '2026-03-30',
+    latest: false,
+    changes: [
+      'Reflect 页签全面上线：5 个分析子页签集成于统一月份导航',
+      '收支概览：本月收入 / 支出 / 结余卡片 + 支出占比环形图',
+      '分类支出：按分组展示预算 vs 实际，进度条 + 超支标记',
+      '趋势图：近 6/12 个月收支对比柱状图 + 储蓄率折线图',
+      '净资产：YNAB 风格大数字 + 资产/负债/净资产统计 + 趋势图 + 月度变化表 + 账户明细',
+      '账龄分析：账龄天数评分 + 30 天日支出柱状图（均值线）+ 近 30 天分类排行',
+      '净资产趋势采用历史数据反推算法，根据收支记录还原各月净资产快照',
+    ]
+  },
+  {
+    version: 'V0.07',
+    date: '2026-03-30',
+    latest: false,
+    changes: [
+      'Credit Card Payments 逻辑：添加信用卡账户时自动创建「Credit Card Payments」分组及对应还款类别',
+      '消费自动归集：信用卡上的支出自动同步到还款类别的「已存待还」，无需手动分配',
+      '还款追踪：录入收入（转入信用卡）后自动从「已存待还」中扣减，反映实际还款进度',
+      '预算行增强：信用卡还款类别显示「💳 还款」标签、进度条（还款/消费比）、自动存入金额提示',
+      '详情面板：信用卡还款类别独立展示账户余额、本月消费、本月还款、已存待还及还款进度',
+      '账户联动：删除信用卡账户时自动清理对应还款类别和空分组',
+    ]
+  },
+  {
+    version: 'V0.06',
+    date: '2026-03-30',
+    latest: false,
+    changes: [
+      '账户类型扩展：新增信用卡、投资账户、固定资产、负债账户，共 8 种类型',
+      '账户分类：添加/编辑账户时按「预算账户」和「追踪账户」分组选择',
+      '侧边栏分组：账户列表按预算账户 / 追踪账户分区显示',
+      '「账户」页签调整为 4 个独立页签：预算 / 交易记录 / 账户 / 版本历史',
+      '账户页签：以卡片形式展示所有账户，hover 显示「✎ 编辑」按钮',
+    ]
+  },
+  {
     version: 'V0.05',
     date: '2026-03-30',
-    latest: true,
+    latest: false,
     changes: [
       '新增「账户」页签：交易记录总览，顶部显示已结清余额 + 未结清余额 = 实际余额',
       '录入交易：点击「+ 添加交易」在列表顶部插入行内表单，填写账户、日期、收款方、类别、备注、支出/收入',
@@ -758,7 +1096,32 @@ function saveState() {
       targets:       state.targets,
       transactions:  state.transactions,
     }));
+    const now = new Date();
+    const hhmm = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    const el = document.getElementById('saveStatusText');
+    const dot = document.getElementById('saveDot');
+    if (el) el.textContent = '已保存 ' + hhmm;
+    if (dot) { dot.classList.remove('unsaved'); }
   } catch(e) {}
+}
+
+function toggleSaveMenu() {
+  const dd = document.getElementById('saveDropdown');
+  if (!dd) return;
+  dd.classList.toggle('open');
+  // close when clicking outside
+  if (dd.classList.contains('open')) {
+    setTimeout(() => {
+      document.addEventListener('click', closeSaveMenu, { once: true });
+    }, 0);
+  }
+}
+
+function closeSaveMenu(e) {
+  const wrap = document.getElementById('saveMenuWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('saveDropdown')?.classList.remove('open');
+  }
 }
 
 function loadState() {
@@ -777,6 +1140,63 @@ function loadState() {
     state.transactions = d.transactions || [];
     return true;
   } catch { return false; }
+}
+
+// ══════════════════════════════════════════════
+//  Export / Import
+// ══════════════════════════════════════════════
+function exportData() {
+  const payload = {
+    _version: 'budgetApp_v0.1',
+    _exportedAt: new Date().toISOString(),
+    currentMonth:  state.currentMonth,
+    mainCurrency:  state.mainCurrency,
+    accounts:      state.accounts,
+    incomes:       state.incomes,
+    groups:        state.groups,
+    categories:    state.categories,
+    allocations:   state.allocations,
+    targets:       state.targets,
+    transactions:  state.transactions,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10);
+  a.href     = url;
+  a.download = `budget-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      if (!d.accounts || !d.groups) throw new Error('格式不正确');
+      if (!confirm(`确认导入备份？\n文件：${file.name}\n导出时间：${d._exportedAt || '未知'}\n\n当前数据将被覆盖，此操作不可撤销。`)) return;
+      state.currentMonth = d.currentMonth || state.currentMonth;
+      state.mainCurrency = d.mainCurrency || 'HKD';
+      state.accounts     = d.accounts     || [];
+      state.incomes      = d.incomes      || [];
+      state.groups       = d.groups       || [];
+      state.categories   = d.categories   || [];
+      state.allocations  = d.allocations  || {};
+      state.targets      = d.targets      || {};
+      state.transactions = d.transactions || [];
+      saveState();
+      render();
+      alert('导入成功！');
+    } catch(err) {
+      alert('导入失败：' + err.message);
+    } finally {
+      input.value = ''; // reset so same file can be re-selected
+    }
+  };
+  reader.readAsText(file);
 }
 
 // ══════════════════════════════════════════════
@@ -812,8 +1232,72 @@ const catOutflowHKD   = catId => state.transactions
     const cur = t.currency || (state.accounts.find(a => a.id === t.accountId)?.currency || 'HKD');
     return s + toBase(t.outflow || 0, cur);
   }, 0);
-const catAvailHKD    = catId => catLeftOverHKD(catId) + catAllocHKD(catId) - catOutflowHKD(catId);
 const catTargetHKD   = catId => (state.targets[catId] || {}).amountHKD || 0;
+
+// ── Credit Card helpers ──
+// Categorized spending on a credit card this month (auto-funded amount)
+function ccSpendingHKD(ccAccId) {
+  return state.transactions
+    .filter(t => t.accountId === ccAccId && txnMonth(t) === state.currentMonth && (t.outflow||0) > 0)
+    .reduce((s, t) => {
+      const cur = t.currency || (state.accounts.find(a => a.id === t.accountId)?.currency || 'HKD');
+      return s + toBase(t.outflow||0, cur);
+    }, 0);
+}
+// Inflows to the credit card account (payments / transfers in)
+function ccPaymentsHKD(ccAccId) {
+  return state.transactions
+    .filter(t => t.accountId === ccAccId && txnMonth(t) === state.currentMonth && (t.inflow||0) > 0)
+    .reduce((s, t) => {
+      const cur = t.currency || (state.accounts.find(a => a.id === t.accountId)?.currency || 'HKD');
+      return s + toBase(t.inflow||0, cur);
+    }, 0);
+}
+
+// Available balance — cc payment categories auto-accumulate from cc spending
+// Returns { currentStart, currentEnd, prevStart, prevEnd, billingDay } for a CC account
+function ccBillingCycles(ccAccId) {
+  const acc = state.accounts.find(a => a.id === ccAccId);
+  const bd  = acc?.billingDay || 12;
+  const today = new Date();
+  const d = today.getDate(), m = today.getMonth(), y = today.getFullYear();
+  // Last billing date = most recent billingDay that has passed (or today if today is billingDay)
+  const lastBilling = d >= bd ? new Date(y, m, bd) : new Date(y, m - 1, bd);
+  const prevBilling = new Date(lastBilling.getFullYear(), lastBilling.getMonth() - 1, bd);
+  return {
+    billingDay:   bd,
+    currentStart: new Date(lastBilling.getTime() + 86400000),  // day after last billing
+    currentEnd:   today,
+    prevStart:    new Date(prevBilling.getTime() + 86400000),   // day after prev billing
+    prevEnd:      lastBilling,
+    lastBilling,
+  };
+}
+
+// Spending on a CC account within a date range
+function ccRangeSpendHKD(ccAccId, from, to) {
+  const acc = state.accounts.find(a => a.id === ccAccId);
+  return state.transactions
+    .filter(t => t.accountId === ccAccId && (t.outflow || 0) > 0)
+    .filter(t => { const d = new Date(t.date); return d >= from && d <= to; })
+    .reduce((s, t) => s + toBase(t.outflow, t.currency || acc?.currency || 'HKD'), 0);
+}
+
+function catAvailHKD(catId) {
+  const cat = state.categories.find(c => c.id === catId);
+  if (cat?.creditCardAccountId) {
+    return catLeftOverHKD(catId) + catAllocHKD(catId)
+      + ccSpendingHKD(cat.creditCardAccountId)
+      - ccPaymentsHKD(cat.creditCardAccountId);
+  }
+  return catLeftOverHKD(catId) + catAllocHKD(catId) - catOutflowHKD(catId);
+}
+// For the Activity column: cc payment cats show payments made; others show outflow
+function catActivityHKD(catId) {
+  const cat = state.categories.find(c => c.id === catId);
+  if (cat?.creditCardAccountId) return ccPaymentsHKD(cat.creditCardAccountId);
+  return catOutflowHKD(catId);
+}
 
 // Display helpers (mainCurrency)
 const catAllocDisplay   = catId => fromBase(catAllocHKD(catId),    state.mainCurrency);
@@ -822,6 +1306,8 @@ const catTargetDisplay  = catId => fromBase(catTargetHKD(catId),   state.mainCur
 const catLeftOverDisplay = catId => fromBase(catLeftOverHKD(catId), state.mainCurrency);
 
 function catStatus(catId) {
+  const cat = state.categories.find(c => c.id === catId);
+  if (cat?.creditCardAccountId) return 'cc-payment';
   const avail  = catAvailHKD(catId);
   const target = catTargetHKD(catId);
   if (target > 0) return avail >= target ? 'funded' : 'underfunded';
@@ -829,6 +1315,12 @@ function catStatus(catId) {
 }
 
 function catProgress(catId) {
+  const cat = state.categories.find(c => c.id === catId);
+  if (cat?.creditCardAccountId) {
+    const spending  = ccSpendingHKD(cat.creditCardAccountId);
+    const payments  = ccPaymentsHKD(cat.creditCardAccountId);
+    return spending > 0 ? Math.min(100, (payments / spending) * 100) : 0;
+  }
   const avail  = catAvailHKD(catId);
   const target = catTargetHKD(catId);
   if (target > 0) return Math.min(100, Math.max(0, (avail / target) * 100));
@@ -867,6 +1359,15 @@ function switchTab(name, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'reflect') { if (!reflectMonth) reflectMonth = state.currentMonth; renderReflect(); }
+}
+
+function goToAccount(accId) {
+  const btn = document.querySelector('.tab-btn[onclick*="transactions"]');
+  switchTab('transactions', btn);
+  const filterEl = document.getElementById('txnFilterAcc');
+  if (filterEl) { filterEl.value = accId; }
+  renderAccountsTab();
 }
 
 function setFilter(mode, btn) {
@@ -904,11 +1405,79 @@ function updateDetailPanel() {
   const targetD  = catTargetDisplay(catId);
 
   // Header
-  document.getElementById('dp-name').textContent = cat.name;
+  document.getElementById('dp-name').textContent = (cat.creditCardAccountId ? '💳 ' : '') + cat.name;
 
+  // ── CC Payment category: completely different detail view ──
+  const targetSection = document.getElementById('dp-target-section');
+  if (cat.creditCardAccountId) {
+    const ccAcc     = state.accounts.find(a => a.id === cat.creditCardAccountId);
+    const spendHKD  = ccSpendingHKD(cat.creditCardAccountId);
+    const payHKD    = ccPaymentsHKD(cat.creditCardAccountId);
+    const autoFundD = fmt(fromBase(spendHKD, state.mainCurrency));
+    const payD      = fmt(fromBase(payHKD, state.mainCurrency));
+    const ccBal     = ccAcc ? fmt(Math.abs(ccAcc.balance), ccAcc.currency) : '-';
+    const ccBalNeg  = ccAcc && ccAcc.balance < 0;
+    document.getElementById('dp-leftover').textContent = fmt(leftOver);
+    document.getElementById('dp-assigned').textContent = '+' + fmt(assigned);
+    document.getElementById('dp-cash-spend').textContent = spendHKD > 0 ? '+' + autoFundD : fmt(0);
+    document.getElementById('dp-cash-spend').className  = 'dp-val' + (spendHKD > 0 ? ' green' : '');
+    document.getElementById('dp-credit-spend').textContent = payHKD > 0 ? '-' + payD : fmt(0);
+    document.getElementById('dp-avail-total').textContent  = fmt(avail);
+    document.getElementById('dp-avail-badge').textContent  = fmt(avail);
+    document.getElementById('dp-avail-badge').className    = 'dp-avail-badge' + (avail < 0 ? ' red' : avail === 0 ? ' zero' : '');
+    document.querySelector('#dp-cash-spend').previousElementSibling.textContent   = '本月消费 (自动存入)';
+    document.querySelector('#dp-credit-spend').previousElementSibling.textContent = '本月已还款';
+
+    // Billing cycle breakdown
+    const cyc     = ccBillingCycles(cat.creditCardAccountId);
+    const curSpend = ccRangeSpendHKD(cat.creditCardAccountId, cyc.currentStart, cyc.currentEnd);
+    const prevSpend = ccRangeSpendHKD(cat.creditCardAccountId, cyc.prevStart, cyc.prevEnd);
+    const fmtDate = d => `${d.getMonth()+1}/${d.getDate()}`;
+    const payPct  = spendHKD > 0 ? Math.round((payHKD / spendHKD) * 100) : (payHKD > 0 ? 100 : 0);
+
+    targetSection.innerHTML = `
+      <div class="dp-section-title"><span>信用卡账户</span><span style="font-size:0.7rem;color:#aaa;">账单日：每月${cyc.billingDay}号</span></div>
+      <div class="dp-breakdown">
+        <div class="dp-row">
+          <span class="dp-label">账户余额</span>
+          <span class="dp-val ${ccBalNeg?'red':''}">${ccBalNeg?'-':''}${ccBal}</span>
+        </div>
+      </div>
+      <div class="dp-section-title" style="margin-top:10px;"><span>账单周期</span></div>
+      <div class="dp-breakdown">
+        <div class="dp-row">
+          <span class="dp-label">上期账单 <span style="font-size:0.65rem;color:#bbb;">(${fmtDate(cyc.prevStart)}–${fmtDate(cyc.prevEnd)})</span></span>
+          <span class="dp-val ${prevSpend>0?'red':''}">${prevSpend>0?'-'+fmt(fromBase(prevSpend,state.mainCurrency)):fmt(0)}</span>
+        </div>
+        <div class="dp-row">
+          <span class="dp-label">本期账单 <span style="font-size:0.65rem;color:#bbb;">(${fmtDate(cyc.currentStart)}–今日)</span></span>
+          <span class="dp-val ${curSpend>0?'red':''}">${curSpend>0?'-'+fmt(fromBase(curSpend,state.mainCurrency)):fmt(0)}</span>
+        </div>
+        <div class="dp-row">
+          <span class="dp-label">本月还款</span>
+          <span class="dp-val green">${payHKD > 0 ? '+'+payD : fmt(0)}</span>
+        </div>
+        <div class="dp-row total">
+          <span class="dp-label">已存待还</span>
+          <span class="dp-val">${fmt(avail)}</span>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <div style="font-size:0.76rem;color:#888;margin-bottom:6px;">还款进度 ${payPct}%（本月消费 ${autoFundD}）</div>
+        <div style="height:6px;background:#eee;border-radius:3px;overflow:hidden;">
+          <div style="height:100%;width:${Math.min(100,payPct)}%;background:#3aaf85;border-radius:3px;"></div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // ── Regular category ──
   // Available breakdown
   document.getElementById('dp-leftover').textContent = fmt(leftOver);
   document.getElementById('dp-assigned').textContent = '+' + fmt(assigned);
+  // Restore labels in case they were changed by a previous CC category selection
+  document.querySelector('#dp-cash-spend').previousElementSibling.textContent   = '现金支出';
+  document.querySelector('#dp-credit-spend').previousElementSibling.textContent = '信用卡支出';
   const outflowHKD = catOutflowHKD(catId);
   const outflowDisp = fromBase(outflowHKD, state.mainCurrency);
   document.getElementById('dp-cash-spend').textContent = outflowHKD > 0 ? '-' + fmt(outflowDisp) : fmt(0);
@@ -924,7 +1493,6 @@ function updateDetailPanel() {
   // Target section (comparisons done in HKD to avoid rounding issues)
   const allocHKD  = catAllocHKD(catId);
   const targetHKD = catTargetHKD(catId);
-  const targetSection = document.getElementById('dp-target-section');
   if (targetHKD <= 0) {
     targetSection.innerHTML = `
       <div class="dp-target-empty">
@@ -962,20 +1530,32 @@ function render() {
 
   // Sidebar accounts
   const accList = document.getElementById('accountList');
-  accList.innerHTML = state.accounts.length === 0
-    ? '<div style="padding:7px 14px;font-size:0.78rem;color:#3d5566;">暂无账户</div>'
-    : state.accounts.map(a => `
-        <div class="account-item">
-          <span class="acc-left">
-            <span>${ACCOUNT_ICONS[a.type]||'💳'}</span>
-            <span class="acc-name-text">${a.name}</span>
-            <span class="acc-cur">${a.currency}</span>
-          </span>
-          <span class="acc-right">
-            <span class="balance">${fmt(a.balance, a.currency)}</span>
-            <button class="edit-acc-btn" onclick="openEditAccount('${a.id}')" title="编辑">✎</button>
-          </span>
-        </div>`).join('');
+  if (state.accounts.length === 0) {
+    accList.innerHTML = '<div style="padding:7px 14px;font-size:0.78rem;color:#3d5566;">暂无账户</div>';
+  } else {
+    const budgetAccs   = state.accounts.filter(a => BUDGET_ACC_TYPES.has(a.type));
+    const trackingAccs = state.accounts.filter(a => TRACKING_ACC_TYPES.has(a.type));
+    const renderAccItem = a => `
+      <div class="account-item" onclick="goToAccount('${a.id}')" style="cursor:pointer;">
+        <span class="acc-left">
+          <span>${ACCOUNT_ICONS[a.type]||'💳'}</span>
+          <span class="acc-name-text">${a.name}</span>
+          <span class="acc-cur">${a.currency}</span>
+        </span>
+        <span class="acc-right">
+          <span class="balance">${fmt(a.balance, a.currency)}</span>
+          <button class="edit-acc-btn" onclick="event.stopPropagation();openEditAccount('${a.id}')" title="编辑">✎</button>
+        </span>
+      </div>`;
+    let sidebarHtml = '';
+    if (budgetAccs.length > 0) {
+      sidebarHtml += '<div class="sidebar-sub-label">预算账户</div>' + budgetAccs.map(renderAccItem).join('');
+    }
+    if (trackingAccs.length > 0) {
+      sidebarHtml += '<div class="sidebar-sub-label">追踪账户</div>' + trackingAccs.map(renderAccItem).join('');
+    }
+    accList.innerHTML = sidebarHtml;
+  }
 
   document.getElementById('totalBalance').textContent = fmt(fromBase(totalBalanceHKD(), state.mainCurrency));
 
@@ -997,7 +1577,7 @@ function render() {
       if (state.filterMode !== 'all' && visible.length === 0) return;
 
       const gAssignedHKD  = cats.reduce((s, c) => s + catAllocHKD(c.id), 0);
-      const gActivityHKD  = cats.reduce((s, c) => s + catOutflowHKD(c.id), 0);
+      const gActivityHKD  = cats.reduce((s, c) => s + catActivityHKD(c.id), 0);
       const gAvailHKD     = cats.reduce((s, c) => s + catAvailHKD(c.id), 0);
 
       const div = document.createElement('div');
@@ -1006,8 +1586,8 @@ function render() {
       div.innerHTML = `
         <div class="group-header">
           <span class="group-name-cell">
-            <span class="group-name-text">${group.name}</span>
-            <button class="delete-group-btn" onclick="event.stopPropagation();deleteGroup('${group.id}')" title="删除分组">✕</button>
+            <span class="group-name-text">${group.isCreditCardGroup ? '💳 ' : ''}${group.name}</span>
+            ${group.isCreditCardGroup ? '' : `<button class="delete-group-btn" onclick="event.stopPropagation();deleteGroup('${group.id}')" title="删除分组">✕</button>`}
           </span>
           <span>${fmt(fromBase(gAssignedHKD, state.mainCurrency))}</span>
           <span style="color:${gActivityHKD>0?'#e74c3c':'#ccc'}">${gActivityHKD>0?'-'+fmt(fromBase(gActivityHKD,state.mainCurrency)):fmt(0)}</span>
@@ -1015,27 +1595,40 @@ function render() {
         </div>
         ${cats.map(cat => {
           if (!passesFilter(cat.id)) return '';
+          const isCCPay = !!cat.creditCardAccountId;
           const allocDisplay    = catAllocDisplay(cat.id);
           const availDisplay    = catAvailDisplay(cat.id);
-          const activityHKD     = catOutflowHKD(cat.id);
+          const activityHKD     = catActivityHKD(cat.id);
           const activityDisplay = fromBase(activityHKD, state.mainCurrency);
           const status   = catStatus(cat.id);
           const progress = catProgress(cat.id);
           const isSelected = state.selectedCatId === cat.id;
           const availClass = availDisplay > 0 ? 'green' : availDisplay < 0 ? 'red' : 'zero';
           const STATUS_LABELS = { funded:'Funded', underfunded:'资金不足', overfunded:'资金过剩' };
+          // CC payment category: show auto-funded badge, hide delete btn
+          const ccAutoHKD = isCCPay ? ccSpendingHKD(cat.creditCardAccountId) : 0;
+          const ccAutoDisp = fromBase(ccAutoHKD, state.mainCurrency);
+          const nameBadge = isCCPay
+            ? `<span class="status-badge cc-payment">💳 还款</span>`
+            : (status && status !== 'cc-payment' ? `<span class="status-badge ${status}">${STATUS_LABELS[status]||''}</span>` : '');
+          const actCell = isCCPay
+            ? (activityHKD > 0
+                ? `<span class="activity-cell">-${fmt(activityDisplay)}</span>`
+                : `<span class="activity-cell zero">${fmt(0)}</span>`)
+            : `<span class="activity-cell${activityHKD>0?'':' zero'}">${activityHKD>0?'-'+fmt(activityDisplay):fmt(0)}</span>`;
           return `
             <div class="cat-item${isSelected ? ' selected' : ''}" onclick="selectCategory('${cat.id}')">
               <div class="cat-row">
                 <span class="cat-name-cell">
                   <div class="cat-top">
-                    <span class="cat-name-text">${cat.name}</span>
-                    ${status ? `<span class="status-badge ${status}">${STATUS_LABELS[status]||''}</span>` : ''}
-                    <button class="delete-cat-btn" onclick="event.stopPropagation();deleteCategory('${cat.id}')" title="删除">✕</button>
+                    <span class="cat-name-text">${isCCPay ? '💳 ' : ''}${cat.name}</span>
+                    ${nameBadge}
+                    ${isCCPay ? '' : `<button class="delete-cat-btn" onclick="event.stopPropagation();deleteCategory('${cat.id}')" title="删除">✕</button>`}
                   </div>
                   <div class="progress-wrap">
-                    <div class="progress-fill ${status||'none'}" style="width:${progress}%"></div>
+                    <div class="progress-fill ${isCCPay ? 'cc-payment' : (status||'none')}" style="width:${progress}%"></div>
                   </div>
+                  ${isCCPay && ccAutoHKD > 0 ? `<div class="cc-auto-label">↑ 本月消费自动存入 ${fmt(ccAutoDisp)}</div>` : ''}
                 </span>
                 <span onclick="event.stopPropagation()">
                   <input class="budget-input" type="number" step="0.01"
@@ -1044,7 +1637,7 @@ function render() {
                     onchange="setAllocation('${cat.id}', this.value)"
                     onfocus="this.select()">
                 </span>
-                <span class="activity-cell${activityHKD>0?'':' zero'}">${activityHKD>0?'-'+fmt(activityDisplay):fmt(0)}</span>
+                ${actCell}
                 <span><span class="avail-cell ${availClass}">${fmt(availDisplay)}</span></span>
               </div>
             </div>`;
@@ -1082,6 +1675,40 @@ function renderAccountsTab() {
   document.getElementById('bal-cleared').textContent   = fmt(fromBase(clearedHKD, state.mainCurrency));
   document.getElementById('bal-uncleared').textContent = fmt(fromBase(unclearedHKD, state.mainCurrency));
   document.getElementById('bal-working').textContent   = fmt(fromBase(workingHKD, state.mainCurrency));
+
+  // Account cards
+  const accCardListEl = document.getElementById('accCardList');
+  if (accCardListEl) {
+    const budgetAccs   = state.accounts.filter(a => BUDGET_ACC_TYPES.has(a.type));
+    const trackingAccs = state.accounts.filter(a => TRACKING_ACC_TYPES.has(a.type));
+    const renderAccCard = a => {
+      const isNeg = a.balance < 0;
+      return `<div class="acc-card">
+        <div class="acc-card-icon">${ACCOUNT_ICONS[a.type]||'💳'}</div>
+        <div class="acc-card-info">
+          <div class="acc-card-name">${a.name}</div>
+          <div class="acc-card-type">${ACC_TYPE_LABELS[a.type]||a.type}</div>
+        </div>
+        <div class="acc-card-right">
+          <div class="acc-card-balance${isNeg?' negative':''}">${fmt(a.balance, a.currency)}</div>
+          <div class="acc-card-cur">${a.currency}</div>
+        </div>
+        <button class="acc-card-edit-btn" onclick="openEditAccount('${a.id}')">✎ 编辑</button>
+      </div>`;
+    };
+    let cardHtml = '';
+    if (state.accounts.length === 0) {
+      cardHtml = '<div class="txn-empty">暂无账户<br>点击右上角「+ 账户」添加</div>';
+    } else {
+      if (budgetAccs.length > 0) {
+        cardHtml += `<div class="acc-section-title">预算账户</div><div class="acc-grid">${budgetAccs.map(renderAccCard).join('')}</div>`;
+      }
+      if (trackingAccs.length > 0) {
+        cardHtml += `<div class="acc-section-title">追踪账户</div><div class="acc-grid">${trackingAccs.map(renderAccCard).join('')}</div>`;
+      }
+    }
+    accCardListEl.innerHTML = cardHtml;
+  }
 
   // Account filter dropdown
   const filterEl = document.getElementById('txnFilterAcc');
@@ -1250,6 +1877,753 @@ function toggleCleared(id) {
   saveState(); renderAccountsTab();
 }
 
+// ══════════════════════════════════════════════
+//  Reflect
+// ══════════════════════════════════════════════
+let reflectMonth = null;
+
+function switchReflectTab(name, btn) {
+  document.querySelectorAll('#panel-reflect .acc-subtab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#panel-reflect .acc-subpanel').forEach(p => p.classList.remove('active'));
+  document.getElementById('reflect-panel-' + name).classList.add('active');
+  renderReflect();
+}
+
+function changeReflectMonth(d) {
+  if (!reflectMonth) reflectMonth = state.currentMonth;
+  let y = Math.floor(reflectMonth / 100), m = reflectMonth % 100;
+  m += d;
+  if (m > 12) { m = 1; y++; } if (m < 1) { m = 12; y--; }
+  reflectMonth = y * 100 + m;
+  renderReflect();
+}
+
+function incomeForMonth(month) {
+  return state.incomes.filter(i => i.month === month).reduce((s, i) => {
+    const acc = state.accounts.find(a => a.id === i.accountId);
+    return s + toBase(i.amount, acc ? acc.currency : 'HKD');
+  }, 0);
+}
+
+function expenseForMonth(month) {
+  return state.transactions
+    .filter(t => txnMonth(t) === month && (t.outflow || 0) > 0)
+    .filter(t => { const cat = state.categories.find(c => c.id === t.categoryId); return !cat?.creditCardAccountId; })
+    .reduce((s, t) => {
+      const cur = t.currency || (state.accounts.find(a => a.id === t.accountId)?.currency || 'HKD');
+      return s + toBase(t.outflow || 0, cur);
+    }, 0);
+}
+
+function catSpendingForMonth(catId, month) {
+  return state.transactions
+    .filter(t => t.categoryId === catId && txnMonth(t) === month)
+    .reduce((s, t) => {
+      const cur = t.currency || (state.accounts.find(a => a.id === t.accountId)?.currency || 'HKD');
+      return s + toBase(t.outflow || 0, cur);
+    }, 0);
+}
+
+function renderReflect() {
+  if (!reflectMonth) reflectMonth = state.currentMonth;
+  document.getElementById('reflectMonthLabel').textContent = monthLabel(reflectMonth);
+
+  // Always render trends (month nav affects it)
+  renderTrends();
+  // Net worth is snapshot — always fresh
+  renderNetWorth();
+  renderAgeOfMoney();
+
+  // ── Batch 1: Summary cards ──
+  const incomeHKD  = incomeForMonth(reflectMonth);
+  const expenseHKD = expenseForMonth(reflectMonth);
+  const netHKD     = incomeHKD - expenseHKD;
+  const expPct     = incomeHKD > 0 ? Math.min(150, Math.round((expenseHKD / incomeHKD) * 100)) : (expenseHKD > 0 ? 100 : 0);
+  const savePct    = incomeHKD > 0 ? Math.max(0, Math.round((netHKD / incomeHKD) * 100)) : 0;
+  const ringPct    = Math.min(100, expPct);
+  const ringColor  = expPct >= 100 ? '#e74c3c' : expPct >= 80 ? '#f0a500' : '#3aaf85';
+  const ringDash   = `${ringPct} ${100 - ringPct}`;
+
+  document.getElementById('reflectCards').innerHTML = `
+    <div class="reflect-card">
+      <div class="rc-label">本月收入</div>
+      <div class="rc-amount green">${fmt(fromBase(incomeHKD, state.mainCurrency))}</div>
+      <div class="rc-sub">${state.mainCurrency}</div>
+    </div>
+    <div class="reflect-card">
+      <div class="rc-label">本月支出</div>
+      <div class="rc-amount ${expenseHKD > incomeHKD && incomeHKD > 0 ? 'red' : 'dark'}">${fmt(fromBase(expenseHKD, state.mainCurrency))}</div>
+      <div class="rc-sub">${incomeHKD > 0 ? '占收入 ' + expPct + '%' : state.mainCurrency}</div>
+    </div>
+    <div class="reflect-card">
+      <div class="rc-label">${netHKD >= 0 ? '本月结余' : '本月超支'}</div>
+      <div class="rc-amount ${netHKD >= 0 ? 'green' : 'red'}">${netHKD < 0 ? '-' : ''}${fmt(fromBase(Math.abs(netHKD), state.mainCurrency))}</div>
+      <div class="rc-sub">${incomeHKD > 0 ? '储蓄率 ' + savePct + '%' : state.mainCurrency}</div>
+    </div>
+    <div class="reflect-card ring-card">
+      <div class="rc-label">支出比例</div>
+      <svg class="ring-svg" viewBox="0 0 36 36">
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f0f4f8" stroke-width="3.5"/>
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="${ringColor}" stroke-width="3.5"
+          stroke-dasharray="${ringDash}" stroke-dashoffset="25"
+          transform="rotate(-90 18 18)" stroke-linecap="round"/>
+        <text x="18" y="21" text-anchor="middle" font-size="7.5" font-weight="bold" fill="${ringColor}">${expPct}%</text>
+      </svg>
+    </div>`;
+
+  // ── Batch 2: Category breakdown ──
+  const showEmpty = document.getElementById('reflectShowEmpty')?.checked;
+  const normalCats = state.categories.filter(c => !c.creditCardAccountId);
+
+  // Group by group, sort groups by total spending desc
+  const groupData = state.groups
+    .filter(g => !g.isCreditCardGroup)
+    .map(g => {
+      const cats = normalCats.filter(c => c.groupId === g.id).map(c => ({
+        cat: c,
+        spendingHKD: catSpendingForMonth(c.id, reflectMonth),
+        allocHKD:    catAllocHKD(c.id, reflectMonth),
+      })).filter(d => showEmpty ? true : (d.spendingHKD > 0 || d.allocHKD > 0))
+        .sort((a, b) => b.spendingHKD - a.spendingHKD);
+      return { group: g, cats };
+    }).filter(gd => gd.cats.length > 0);
+
+  if (groupData.length === 0) {
+    document.getElementById('reflectCategoryList').innerHTML =
+      '<div class="reflect-empty">本月暂无支出或预算数据<br>录入收入并分配预算后，这里将显示分析结果</div>';
+    return;
+  }
+
+  const allCats = groupData.flatMap(gd => gd.cats);
+  const maxBar  = Math.max(...allCats.map(d => Math.max(d.spendingHKD, d.allocHKD)), 1);
+
+  document.getElementById('reflectCategoryList').innerHTML = groupData.map(gd => {
+    const rows = gd.cats.map(d => {
+      const isOver    = d.spendingHKD > d.allocHKD && d.allocHKD > 0;
+      const noAlloc   = d.allocHKD === 0;
+      const spendPct  = d.allocHKD > 0 ? Math.min(100, (d.spendingHKD / d.allocHKD) * 100) : (d.spendingHKD > 0 ? 100 : 0);
+      const barW      = (Math.max(d.spendingHKD, d.allocHKD) / maxBar * 100).toFixed(1);
+      const barColor  = isOver ? '#e74c3c' : spendPct >= 80 ? '#f0a500' : '#3aaf85';
+      const spentD    = fmt(fromBase(d.spendingHKD, state.mainCurrency));
+      const allocD    = d.allocHKD > 0 ? fmt(fromBase(d.allocHKD, state.mainCurrency)) : '未分配';
+      const availHKD  = d.allocHKD - d.spendingHKD;
+      const availD    = fmt(fromBase(Math.abs(availHKD), state.mainCurrency));
+      return `
+        <div class="reflect-cat-row">
+          <div class="rcat-header">
+            <div class="rcat-left">
+              <span class="rcat-name">${d.cat.name}</span>
+              ${isOver ? '<span class="rcat-over-badge">超支</span>' : ''}
+              ${noAlloc && d.spendingHKD > 0 ? '<span class="rcat-over-badge">未分配</span>' : ''}
+            </div>
+            <div class="rcat-amounts">
+              <span class="rcat-spent ${isOver ? 'red' : ''}">${spentD}</span>
+              <span class="rcat-sep">/</span>
+              <span class="rcat-alloc">${allocD}</span>
+            </div>
+          </div>
+          <div class="rcat-bar-wrap">
+            <div class="rcat-bar" style="width:${barW}%;background:${barColor};"></div>
+          </div>
+          <div class="rcat-footer">
+            <span>${spendPct > 0 ? '已用 ' + Math.round(spendPct) + '%' : '暂无支出'}</span>
+            ${d.allocHKD > 0 ? `<span class="${isOver ? 'over' : 'avail'}">${isOver ? '超支 -' : '剩余 '}${availD}</span>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+    return `<div class="reflect-group-header">${gd.group.name}</div>${rows}`;
+  }).join('');
+}
+
+// ── Trends (Batch 3) ──────────────────────────────────────
+let trendsSpan = 6;
+
+function switchTrendsSpan(n, btn) {
+  trendsSpan = n;
+  document.querySelectorAll('.trend-span-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTrends();
+}
+
+function getRecentMonths(n) {
+  const base = reflectMonth || state.currentMonth;
+  const months = [];
+  let y = Math.floor(base / 100), m = base % 100;
+  for (let i = n - 1; i >= 0; i--) {
+    let cm = m - i;
+    let cy = y;
+    while (cm < 1) { cm += 12; cy--; }
+    months.push(cy * 100 + cm);
+  }
+  return months;
+}
+
+function monthShortLabel(ym) {
+  const y = Math.floor(ym / 100), m = ym % 100;
+  return m + '月';
+}
+
+function fmtShort(n) {
+  if (n >= 10000) return (n / 10000).toFixed(1) + 'w';
+  if (n >= 1000)  return (n / 1000).toFixed(1) + 'k';
+  return Math.round(n).toString();
+}
+
+function buildBarChartSVG(months, incomes, expenses) {
+  const W = 560, H = 160, padL = 44, padR = 10, padT = 10, padB = 30;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const n = months.length;
+  const maxVal = Math.max(...incomes, ...expenses, 1);
+
+  // Nice Y axis
+  function niceStep(max) {
+    const raw = max / 4;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const nice = [1,2,2.5,5,10].map(f => f * mag).find(s => max / s <= 5) || mag * 10;
+    return nice;
+  }
+  const step = niceStep(maxVal);
+  const yTicks = [];
+  for (let v = 0; v <= maxVal + step; v += step) { if (v <= maxVal * 1.25) yTicks.push(v); }
+
+  const barGroup = chartW / n;
+  const barW = Math.max(4, Math.min(20, barGroup * 0.36));
+  const gap = barW * 0.5;
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible;">`;
+
+  // Y gridlines + labels
+  yTicks.forEach(v => {
+    const ry = padT + chartH - (v / (yTicks[yTicks.length-1] || 1)) * chartH;
+    svg += `<line x1="${padL}" y1="${ry.toFixed(1)}" x2="${W - padR}" y2="${ry.toFixed(1)}" stroke="#f0f4f8" stroke-width="1"/>`;
+    svg += `<text x="${padL - 5}" y="${(ry + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="#bbb">${fmtShort(v)}</text>`;
+  });
+
+  // Bars
+  months.forEach((ym, i) => {
+    const cx = padL + i * barGroup + barGroup / 2;
+    const incH = Math.max(0, (incomes[i] / (yTicks[yTicks.length-1] || 1)) * chartH);
+    const expH = Math.max(0, (expenses[i] / (yTicks[yTicks.length-1] || 1)) * chartH);
+
+    const ix = cx - gap / 2 - barW;
+    const ex = cx + gap / 2;
+
+    if (incomes[i] > 0) {
+      const iy = padT + chartH - incH;
+      svg += `<rect x="${ix.toFixed(1)}" y="${iy.toFixed(1)}" width="${barW}" height="${incH.toFixed(1)}" rx="2" fill="#3aaf85"/>`;
+    }
+    if (expenses[i] > 0) {
+      const ey = padT + chartH - expH;
+      svg += `<rect x="${ex.toFixed(1)}" y="${ey.toFixed(1)}" width="${barW}" height="${expH.toFixed(1)}" rx="2" fill="#e74c3c"/>`;
+    }
+    // X label
+    svg += `<text x="${cx.toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="10" fill="#aaa">${monthShortLabel(ym)}</text>`;
+  });
+
+  // Axes
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + chartH}" stroke="#e0e6ed" stroke-width="1"/>`;
+  svg += `<line x1="${padL}" y1="${padT + chartH}" x2="${W - padR}" y2="${padT + chartH}" stroke="#e0e6ed" stroke-width="1"/>`;
+
+  svg += '</svg>';
+  return svg;
+}
+
+function buildLineChartSVG(months, rates) {
+  const W = 560, H = 120, padL = 44, padR = 10, padT = 14, padB = 28;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const n = months.length;
+
+  // Y range: 0..100 or auto-fit with some padding
+  const hasData = rates.some(r => r !== null);
+  const validRates = rates.filter(r => r !== null);
+  const maxR = validRates.length ? Math.min(100, Math.max(...validRates) * 1.2 + 5) : 100;
+  const minR = validRates.length ? Math.max(-20, Math.min(...validRates) - 5) : 0;
+  const rangeR = maxR - minR || 1;
+
+  const yForRate = r => padT + chartH - ((r - minR) / rangeR) * chartH;
+  const xForIdx = i => padL + (i / Math.max(n - 1, 1)) * chartW;
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible;">`;
+
+  // Y ticks (0%, 25%, 50%, 75%, 100% within visible range)
+  [0, 25, 50, 75, 100].filter(v => v >= minR - 5 && v <= maxR + 5).forEach(v => {
+    const ry = yForRate(v);
+    svg += `<line x1="${padL}" y1="${ry.toFixed(1)}" x2="${W - padR}" y2="${ry.toFixed(1)}" stroke="#f0f4f8" stroke-width="1"/>`;
+    svg += `<text x="${padL - 5}" y="${(ry + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="#bbb">${v}%</text>`;
+  });
+
+  // Zero line (highlight if in range)
+  if (minR < 0) {
+    const zy = yForRate(0);
+    svg += `<line x1="${padL}" y1="${zy.toFixed(1)}" x2="${W - padR}" y2="${zy.toFixed(1)}" stroke="#e0e6ed" stroke-width="1.5" stroke-dasharray="4,2"/>`;
+  }
+
+  if (hasData) {
+    // Build polyline points (skip nulls — only connect valid segments)
+    let pathD = '';
+    let prevX = null, prevY = null;
+    rates.forEach((r, i) => {
+      const x = xForIdx(i);
+      if (r === null) { prevX = null; prevY = null; return; }
+      const y = yForRate(r);
+      if (prevX === null) { pathD += `M ${x.toFixed(1)} ${y.toFixed(1)} `; }
+      else { pathD += `L ${x.toFixed(1)} ${y.toFixed(1)} `; }
+      prevX = x; prevY = y;
+    });
+    svg += `<path d="${pathD}" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+    // Dots + value labels
+    rates.forEach((r, i) => {
+      if (r === null) return;
+      const x = xForIdx(i), y = yForRate(r);
+      svg += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" fill="white" stroke="#3b82f6" stroke-width="2"/>`;
+      const labelY = y > padT + 14 ? y - 6 : y + 14;
+      svg += `<text x="${x.toFixed(1)}" y="${labelY.toFixed(1)}" text-anchor="middle" font-size="10" fill="#3b82f6" font-weight="600">${Math.round(r)}%</text>`;
+    });
+  }
+
+  // X labels
+  months.forEach((ym, i) => {
+    const x = xForIdx(i);
+    svg += `<text x="${x.toFixed(1)}" y="${H - 6}" text-anchor="middle" font-size="10" fill="#aaa">${monthShortLabel(ym)}</text>`;
+  });
+
+  // Axes
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + chartH}" stroke="#e0e6ed" stroke-width="1"/>`;
+  svg += `<line x1="${padL}" y1="${padT + chartH}" x2="${W - padR}" y2="${padT + chartH}" stroke="#e0e6ed" stroke-width="1"/>`;
+
+  svg += '</svg>';
+  return svg;
+}
+
+function renderTrends() {
+  if (!reflectMonth) reflectMonth = state.currentMonth;
+  const months = getRecentMonths(trendsSpan);
+  const incomes  = months.map(m => incomeForMonth(m));
+  const expenses = months.map(m => expenseForMonth(m));
+  const rates    = months.map((m, i) => {
+    const inc = incomes[i];
+    if (inc <= 0) return null;
+    return Math.round(((inc - expenses[i]) / inc) * 100);
+  });
+
+  const barEl  = document.getElementById('trendBarChart');
+  const lineEl = document.getElementById('trendLineChart');
+  if (!barEl || !lineEl) return;
+
+  const hasAny = incomes.some(v => v > 0) || expenses.some(v => v > 0);
+  if (!hasAny) {
+    barEl.innerHTML  = '<div class="chart-empty">暂无数据，录入收支后将显示趋势</div>';
+    lineEl.innerHTML = '<div class="chart-empty">暂无数据</div>';
+    return;
+  }
+
+  barEl.innerHTML  = buildBarChartSVG(months, incomes, expenses);
+  lineEl.innerHTML = buildLineChartSVG(months, rates);
+}
+
+// ── Net Worth (Batch 4) ──────────────────────────────────
+const NW_TYPE_ORDER  = ['bank','savings','alipay','cash','investment','asset','credit','liability'];
+const NW_TYPE_COLORS = {
+  bank:'#3aaf85', savings:'#27ae60', alipay:'#1da1f2', cash:'#f0a500',
+  investment:'#6366f1', asset:'#8b5cf6', credit:'#f87171', liability:'#ef4444'
+};
+
+// Estimate net worth at end of each month by reversing transactions from current balance
+function nwHistoryForMonths(months) {
+  const currentNW = state.accounts.reduce((s, a) => s + toBase(a.balance, a.currency), 0);
+  const n = months.length;
+  const nwArr = new Array(n);
+  nwArr[n - 1] = currentNW;
+  for (let i = n - 2; i >= 0; i--) {
+    const nextM   = months[i + 1];
+    const deltaInc = incomeForMonth(nextM);
+    const deltaExp = expenseForMonth(nextM);
+    nwArr[i] = nwArr[i + 1] - deltaInc + deltaExp;
+  }
+  return nwArr;
+}
+
+function buildNWChartSVG(months, nwValues, incomes, expenses) {
+  const W = 600, H = 200, padL = 62, padR = 16, padT = 16, padB = 30;
+  const chartW = W - padL - padR, chartH = H - padT - padB;
+  const n = months.length;
+
+  // Scale: Y covers the full range (nw can be negative)
+  const allVals = [...nwValues, ...incomes, ...expenses].filter(v => isFinite(v));
+  const rawMax = Math.max(...allVals, 1);
+  const rawMin = Math.min(...allVals, 0);
+  const pad = (rawMax - rawMin) * 0.12;
+  const yMax = rawMax + pad, yMin = rawMin - pad;
+  const yRange = yMax - yMin || 1;
+
+  const yPx = v => padT + chartH - ((v - yMin) / yRange) * chartH;
+  const xPx = i => padL + (n === 1 ? chartW / 2 : i * (chartW / (n - 1)));
+
+  // Y grid ticks
+  function niceYTicks(min, max) {
+    const raw = (max - min) / 4;
+    const mag = Math.pow(10, Math.floor(Math.log10(Math.abs(raw) || 1)));
+    const step = [1,2,2.5,5,10].map(f => f * mag).find(s => (max - min) / s <= 6) || mag * 10;
+    const ticks = [];
+    const start = Math.ceil(min / step) * step;
+    for (let v = start; v <= max + step * 0.01; v += step) ticks.push(parseFloat(v.toPrecision(10)));
+    return ticks;
+  }
+  const yTicks = niceYTicks(yMin, yMax);
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible;">`;
+
+  // Gridlines + Y labels
+  yTicks.forEach(v => {
+    const py = yPx(v);
+    if (py < padT - 2 || py > padT + chartH + 2) return;
+    svg += `<line x1="${padL}" y1="${py.toFixed(1)}" x2="${W - padR}" y2="${py.toFixed(1)}" stroke="${Math.abs(v) < 0.01 ? '#d0d8e4' : '#f0f4f8'}" stroke-width="${Math.abs(v) < 0.01 ? 1.5 : 1}"/>`;
+    svg += `<text x="${padL - 5}" y="${(py + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="#bbb">${fmtShort(v)}</text>`;
+  });
+
+  // Bars (income=green, expense=red), scaled to fit half the chart height max
+  const barScale = chartH * 0.35 / (Math.max(...incomes, ...expenses, 1));
+  const barW = Math.max(5, Math.min(18, (chartW / n) * 0.32));
+  months.forEach((_, i) => {
+    const cx = xPx(i);
+    const baseY = padT + chartH;
+    if (incomes[i] > 0) {
+      const bh = incomes[i] * barScale;
+      svg += `<rect x="${(cx - barW - 1).toFixed(1)}" y="${(baseY - bh).toFixed(1)}" width="${barW}" height="${bh.toFixed(1)}" rx="2" fill="#3aaf85" opacity="0.75"/>`;
+    }
+    if (expenses[i] > 0) {
+      const bh = expenses[i] * barScale;
+      svg += `<rect x="${(cx + 1).toFixed(1)}" y="${(baseY - bh).toFixed(1)}" width="${barW}" height="${bh.toFixed(1)}" rx="2" fill="#f87171" opacity="0.75"/>`;
+    }
+  });
+
+  // Net worth line + area fill
+  const linePoints = months.map((_, i) => `${xPx(i).toFixed(1)},${yPx(nwValues[i]).toFixed(1)}`).join(' ');
+  const zeroY = Math.min(padT + chartH, Math.max(padT, yPx(0)));
+  const areaD = `M ${xPx(0).toFixed(1)},${zeroY.toFixed(1)} ` +
+    months.map((_, i) => `L ${xPx(i).toFixed(1)},${yPx(nwValues[i]).toFixed(1)}`).join(' ') +
+    ` L ${xPx(n-1).toFixed(1)},${zeroY.toFixed(1)} Z`;
+  svg += `<path d="${areaD}" fill="url(#nwGrad)" opacity="0.18"/>`;
+  svg += `<defs><linearGradient id="nwGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#6366f1" stop-opacity="0"/></linearGradient></defs>`;
+  svg += `<polyline points="${linePoints}" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+  // Dots + value labels (show only first and last to avoid clutter)
+  months.forEach((_, i) => {
+    const x = xPx(i), y = yPx(nwValues[i]);
+    svg += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="white" stroke="#6366f1" stroke-width="2"/>`;
+    if (i === 0 || i === n - 1) {
+      const labelY = y > padT + 18 ? y - 8 : y + 16;
+      svg += `<text x="${x.toFixed(1)}" y="${labelY.toFixed(1)}" text-anchor="middle" font-size="10" fill="#6366f1" font-weight="700">${fmtShort(nwValues[i])}</text>`;
+    }
+  });
+
+  // X axis labels
+  months.forEach((ym, i) => {
+    const x = xPx(i);
+    const y = Math.floor(ym / 100), m = ym % 100;
+    const label = (i === 0 || m === 1) ? `${y % 100}/${String(m).padStart(2,'0')}` : monthShortLabel(ym);
+    svg += `<text x="${x.toFixed(1)}" y="${H - 6}" text-anchor="middle" font-size="10" fill="#aaa">${label}</text>`;
+  });
+
+  // Axes
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + chartH}" stroke="#e0e6ed" stroke-width="1"/>`;
+  svg += `<line x1="${padL}" y1="${padT + chartH}" x2="${W - padR}" y2="${padT + chartH}" stroke="#e0e6ed" stroke-width="1"/>`;
+
+  svg += '</svg>';
+  return svg;
+}
+
+function renderNetWorth() {
+  const allAccs = state.accounts;
+  const heroEl  = document.getElementById('nwHero');
+  const chartEl = document.getElementById('nwChartCard');
+  const tableEl = document.getElementById('nwTableCard');
+  const groupEl = document.getElementById('nwAccountGroups');
+
+  if (!allAccs.length) {
+    heroEl.innerHTML  = '<div class="chart-empty">暂无账户数据</div>';
+    chartEl.innerHTML = tableEl.innerHTML = groupEl.innerHTML = '';
+    return;
+  }
+
+  const cur    = state.mainCurrency;
+  const fmtNW  = v => fmt(fromBase(v, cur));
+
+  // ── Totals ──
+  let totalAssetsHKD = 0, totalLiabHKD = 0;
+  allAccs.forEach(a => {
+    const hkd = toBase(a.balance, a.currency);
+    if (hkd >= 0) totalAssetsHKD += hkd; else totalLiabHKD += Math.abs(hkd);
+  });
+  const netHKD = totalAssetsHKD - totalLiabHKD;
+
+  // ── History ──
+  const months  = getRecentMonths(9);
+  const nwHist  = nwHistoryForMonths(months);
+  const incomes  = months.map(m => incomeForMonth(m));
+  const expenses = months.map(m => expenseForMonth(m));
+
+  // Change vs oldest month
+  const changeHKD = nwHist[nwHist.length - 1] - nwHist[0];
+  const changePct = nwHist[0] !== 0 ? ((changeHKD / Math.abs(nwHist[0])) * 100) : 0;
+  const changeUp  = changeHKD >= 0;
+
+  // ── Hero ──
+  const liabRatio = totalAssetsHKD > 0 ? Math.round((totalLiabHKD / totalAssetsHKD) * 100) : 0;
+  heroEl.innerHTML = `
+    <div class="nw-hero">
+      <div class="nw-hero-top">
+        <div>
+          <div class="nw-hero-label">净资产</div>
+          <div class="nw-hero-amount">${netHKD < 0 ? '-' : ''}${fmtNW(Math.abs(netHKD))}</div>
+        </div>
+        <div class="nw-hero-change">
+          <div class="nw-hero-change-val ${changeUp ? 'up' : 'down'}">${changeUp ? '↑' : '↓'} ${changeHKD < 0 ? '-' : ''}${fmtNW(Math.abs(changeHKD))}</div>
+          <div class="nw-hero-change-pct">${Math.abs(changePct).toFixed(1)}%（近 9 个月）</div>
+        </div>
+      </div>
+      <div class="nw-stats-row">
+        <div class="nw-stat">
+          <div class="nw-stat-dot" style="background:#3aaf85;"></div>
+          <div><div class="nw-stat-label">资产</div><div class="nw-stat-val">${fmtNW(totalAssetsHKD)}</div></div>
+        </div>
+        <div class="nw-stat">
+          <div class="nw-stat-dot" style="background:#f87171;"></div>
+          <div><div class="nw-stat-label">负债</div><div class="nw-stat-val" style="color:#e74c3c;">-${fmtNW(totalLiabHKD)}</div></div>
+        </div>
+        <div class="nw-stat" style="margin-left:auto;">
+          <div><div class="nw-stat-label">负债率</div><div class="nw-stat-val">${liabRatio}%</div></div>
+        </div>
+      </div>
+    </div>`;
+
+  // ── Trend chart ──
+  chartEl.innerHTML = `
+    <div class="chart-card-title" style="margin-bottom:6px;">净资产趋势</div>
+    <div style="display:flex;align-items:center;gap:14px;font-size:0.73rem;color:#666;margin-bottom:10px;">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#6366f1;margin-right:4px;vertical-align:middle;"></span>净资产</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:#3aaf85;border-radius:2px;opacity:0.75;margin-right:4px;vertical-align:middle;"></span>收入</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:#f87171;border-radius:2px;opacity:0.75;margin-right:4px;vertical-align:middle;"></span>支出</span>
+    </div>
+    ${buildNWChartSVG(months, nwHist, incomes, expenses)}`;
+
+  // ── Monthly table ──
+  const tableRows = [...months].reverse().map((m, ri) => {
+    const i   = months.length - 1 - ri;
+    const nw  = nwHist[i];
+    const prev = i > 0 ? nwHist[i - 1] : null;
+    const delta = prev !== null ? nw - prev : null;
+    const deltaUp = delta !== null && delta >= 0;
+    const pct = (prev !== null && prev !== 0) ? ((delta / Math.abs(prev)) * 100).toFixed(1) : null;
+    const y = Math.floor(m / 100), mo = m % 100;
+    return `<tr>
+      <td>${y}年${mo}月</td>
+      <td>${nw < 0 ? '-' : ''}${fmtNW(Math.abs(nw))}</td>
+      <td class="${delta === null ? '' : deltaUp ? 'nw-change-up' : 'nw-change-down'}">
+        ${delta === null ? '—' : (deltaUp ? '↑' : '↓') + ' ' + (delta < 0 ? '-' : '') + fmtNW(Math.abs(delta)) + (pct ? ` (${pct}%)` : '')}
+      </td>
+    </tr>`;
+  }).join('');
+
+  tableEl.innerHTML = `
+    <div class="chart-card-title" style="margin-bottom:12px;">月度变化</div>
+    <table class="nw-table">
+      <thead><tr><th>月份</th><th style="text-align:right;">净资产</th><th style="text-align:right;">月度变化</th></tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>`;
+
+  // ── Account groups ──
+  const typeGroups = NW_TYPE_ORDER.filter(t => allAccs.some(a => a.type === t));
+  groupEl.innerHTML = typeGroups.map(t => {
+    const accs = allAccs.filter(a => a.type === t);
+    const groupHKD = accs.reduce((s, a) => s + toBase(a.balance, a.currency), 0);
+    const rows = accs.map(a => {
+      const hkd = toBase(a.balance, a.currency);
+      const isNeg = hkd < 0;
+      return `<div class="nw-row">
+        <div class="nw-row-left">${ACCOUNT_ICONS[t]||'💳'} ${a.name}
+          <span style="font-size:0.65rem;color:#bbb;background:#f4f7fa;padding:1px 5px;border-radius:3px;">${a.currency}</span>
+        </div>
+        <div class="nw-row-amt ${isNeg ? 'neg' : 'pos'}">${isNeg ? '-' : ''}${fmtNW(Math.abs(hkd))}</div>
+      </div>`;
+    }).join('');
+    const groupIsNeg = groupHKD < 0;
+    return `<div class="nw-group">
+      <div class="nw-group-header">
+        <span>${ACC_TYPE_LABELS[t]}</span>
+        <span class="nw-group-total" style="color:${groupIsNeg ? '#e74c3c' : '#555'};">${groupIsNeg ? '-' : ''}${fmtNW(Math.abs(groupHKD))}</span>
+      </div>${rows}
+    </div>`;
+  }).join('') || '<div class="chart-empty">暂无账户</div>';
+}
+
+// ── Age of Money (Batch 5) ────────────────────────────────
+function renderAgeOfMoney() {
+  const heroEl  = document.getElementById('aomHero');
+  const spendEl = document.getElementById('aomSpendChart');
+  const catEl   = document.getElementById('aomCatChart');
+
+  // ── Liquid balance (non-credit budget accounts, positive only) ──
+  const liquidHKD = state.accounts
+    .filter(a => BUDGET_ACC_TYPES.has(a.type) && a.type !== 'credit')
+    .reduce((s, a) => s + Math.max(0, toBase(a.balance, a.currency)), 0);
+
+  // ── Spending over last 30 days (using transaction dates, not month buckets) ──
+  const now = new Date();
+  const msPerDay = 86400000;
+  const thirtyAgo = new Date(now - 30 * msPerDay);
+
+  const recentTxns = state.transactions.filter(t => {
+    if (!(t.outflow > 0)) return false;
+    const cat = state.categories.find(c => c.id === t.categoryId);
+    if (cat?.creditCardAccountId) return false;
+    const d = new Date(t.date);
+    return d >= thirtyAgo && d <= now;
+  });
+
+  const totalSpend30HKD = recentTxns.reduce((s, t) => {
+    const cur = t.currency || (state.accounts.find(a => a.id === t.accountId)?.currency || 'HKD');
+    return s + toBase(t.outflow, cur);
+  }, 0);
+
+  const avgDailyHKD = totalSpend30HKD / 30;
+  const aomDays = avgDailyHKD > 0 ? Math.round(liquidHKD / avgDailyHKD) : null;
+
+  const cur   = state.mainCurrency;
+  const fmtV  = v => fmt(fromBase(v, cur));
+
+  // ── Hero ──
+  const scoreColor = aomDays === null ? 'red' : aomDays >= 30 ? 'green' : aomDays >= 10 ? 'yellow' : 'red';
+  const meterPct   = aomDays === null ? 0 : Math.min(100, (aomDays / 60) * 100);
+  const meterColor = scoreColor === 'green' ? '#27ae60' : scoreColor === 'yellow' ? '#f0a500' : '#e74c3c';
+  const tipText    = aomDays === null
+    ? '暂无近 30 天支出数据，录入交易后将显示账龄分析'
+    : aomDays >= 30
+      ? '您的资金储备充裕，平均在账户中存放超过一个月后才被使用。'
+      : aomDays >= 10
+        ? '资金周转较快，建议适当增加备用金储备。'
+        : '资金储备偏低，当前余额仅能支撑不到 10 天支出，请注意现金流。';
+
+  heroEl.innerHTML = `
+    <div class="aom-hero">
+      <div class="aom-score-wrap">
+        <div class="aom-score ${scoreColor}">${aomDays !== null ? aomDays : '—'}</div>
+        <div class="aom-score-unit">天</div>
+      </div>
+      <div class="aom-divider"></div>
+      <div class="aom-detail">
+        <div class="aom-detail-row">
+          <span class="aom-detail-label">可用余额</span>
+          <span class="aom-detail-val">${fmtV(liquidHKD)}</span>
+        </div>
+        <div class="aom-detail-row">
+          <span class="aom-detail-label">近 30 天支出</span>
+          <span class="aom-detail-val">${fmtV(totalSpend30HKD)}</span>
+        </div>
+        <div class="aom-detail-row">
+          <span class="aom-detail-label">日均支出</span>
+          <span class="aom-detail-val">${fmtV(avgDailyHKD)}</span>
+        </div>
+        <div class="aom-meter"><div class="aom-meter-fill" style="width:${meterPct.toFixed(1)}%;background:${meterColor};"></div></div>
+        <div class="aom-tip">${tipText}</div>
+      </div>
+    </div>`;
+
+  // ── Daily spending chart (last 30 days, grouped by day) ──
+  const daySpend = {};
+  recentTxns.forEach(t => {
+    const day = t.date.slice(0, 10);
+    const cur2 = t.currency || (state.accounts.find(a => a.id === t.accountId)?.currency || 'HKD');
+    daySpend[day] = (daySpend[day] || 0) + toBase(t.outflow, cur2);
+  });
+
+  // Build 30-day array
+  const dayLabels = [], dayValues = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now - i * msPerDay);
+    const key = d.toISOString().slice(0, 10);
+    dayLabels.push(key.slice(5)); // MM-DD
+    dayValues.push(daySpend[key] || 0);
+  }
+
+  // SVG bar chart for daily spend
+  const W2 = 580, H2 = 130, padL2 = 50, padR2 = 8, padT2 = 10, padB2 = 24;
+  const cW = W2 - padL2 - padR2, cH = H2 - padT2 - padB2;
+  const maxDay = Math.max(...dayValues, avgDailyHKD * 1.5, 1);
+  const bw = Math.max(2, (cW / 30) * 0.65);
+
+  let barSvg = `<svg viewBox="0 0 ${W2} ${H2}" width="100%" style="display:block;overflow:visible;">`;
+
+  // Avg daily line
+  const avgY = padT2 + cH - (avgDailyHKD / maxDay) * cH;
+  if (avgDailyHKD > 0) {
+    barSvg += `<line x1="${padL2}" y1="${avgY.toFixed(1)}" x2="${W2 - padR2}" y2="${avgY.toFixed(1)}" stroke="#f0a500" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+    barSvg += `<text x="${padL2 - 4}" y="${(avgY + 4).toFixed(1)}" text-anchor="end" font-size="9" fill="#f0a500">均</text>`;
+  }
+
+  dayValues.forEach((v, i) => {
+    const x = padL2 + i * (cW / 30) + (cW / 30 - bw) / 2;
+    const h = Math.max(0, (v / maxDay) * cH);
+    const y = padT2 + cH - h;
+    const col = v > avgDailyHKD * 1.5 ? '#e74c3c' : v > avgDailyHKD ? '#f0a500' : '#6366f1';
+    if (v > 0) barSvg += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="${col}" opacity="0.85"/>`;
+    // X labels every 5 days
+    if (i % 5 === 0 || i === 29) {
+      barSvg += `<text x="${(x + bw/2).toFixed(1)}" y="${H2 - 5}" text-anchor="middle" font-size="9" fill="#bbb">${dayLabels[i]}</text>`;
+    }
+  });
+
+  // Y axis label
+  barSvg += `<text x="${padL2 - 5}" y="${(padT2 + 4).toFixed(1)}" text-anchor="end" font-size="9" fill="#bbb">${fmtShort(maxDay)}</text>`;
+  barSvg += `<text x="${padL2 - 5}" y="${(padT2 + cH + 4).toFixed(1)}" text-anchor="end" font-size="9" fill="#bbb">0</text>`;
+  barSvg += `<line x1="${padL2}" y1="${padT2}" x2="${padL2}" y2="${padT2 + cH}" stroke="#e0e6ed" stroke-width="1"/>`;
+  barSvg += `<line x1="${padL2}" y1="${padT2 + cH}" x2="${W2 - padR2}" y2="${padT2 + cH}" stroke="#e0e6ed" stroke-width="1"/>`;
+  barSvg += '</svg>';
+
+  spendEl.innerHTML = `
+    <div class="chart-card-title" style="margin-bottom:6px;">近 30 天日支出</div>
+    <div style="font-size:0.72rem;color:#aaa;margin-bottom:10px;">— 虚线为日均支出；红色柱超出均值 50%</div>
+    ${barSvg}`;
+
+  // ── Category breakdown ──
+  const catTotals = {};
+  recentTxns.forEach(t => {
+    const cur3 = t.currency || (state.accounts.find(a => a.id === t.accountId)?.currency || 'HKD');
+    const hkd  = toBase(t.outflow, cur3);
+    const cat  = state.categories.find(c => c.id === t.categoryId);
+    const label = cat ? cat.name : '未分类';
+    catTotals[label] = (catTotals[label] || 0) + hkd;
+  });
+
+  const sorted = Object.entries(catTotals).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  if (!sorted.length) {
+    catEl.innerHTML = '<div class="chart-empty">近 30 天暂无支出记录</div>';
+    return;
+  }
+
+  const maxCat = sorted[0][1];
+  const PALETTE = ['#6366f1','#3aaf85','#f0a500','#e74c3c','#1da1f2','#8b5cf6','#27ae60','#f87171'];
+  const catRows = sorted.map(([name, hkd], i) => {
+    const pct  = (hkd / totalSpend30HKD * 100).toFixed(1);
+    const barW = (hkd / maxCat * 100).toFixed(1);
+    return `<div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px;">
+        <span style="color:#333;font-weight:500;">${name}</span>
+        <span style="color:#555;font-weight:700;">${fmtV(hkd)} <span style="color:#bbb;font-weight:400;">(${pct}%)</span></span>
+      </div>
+      <div style="height:6px;background:#f0f4f8;border-radius:3px;overflow:hidden;">
+        <div style="height:100%;width:${barW}%;background:${PALETTE[i % PALETTE.length]};border-radius:3px;"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  catEl.innerHTML = `<div class="chart-card-title" style="margin-bottom:14px;">近 30 天支出分类</div>${catRows}`;
+}
+
 function renderChangelog() {
   document.getElementById('changelogContent').innerHTML = CHANGELOG.map(v => `
     <div class="version-block">
@@ -1367,6 +2741,13 @@ function openEditAccount(id) {
   document.getElementById('edit-acc-type').value = acc.type;
   document.getElementById('edit-acc-currency').value = acc.currency;
   document.getElementById('edit-acc-balance').value = acc.balance;
+  const editBillingWrap = document.getElementById('edit-acc-billing-wrap');
+  if (acc.type === 'credit') {
+    editBillingWrap.style.display = '';
+    document.getElementById('edit-acc-billing-day').value = acc.billingDay || 12;
+  } else {
+    editBillingWrap.style.display = 'none';
+  }
   showModal('editAccount');
 }
 function saveAccount() {
@@ -1379,14 +2760,23 @@ function saveAccount() {
   acc.type = document.getElementById('edit-acc-type').value;
   acc.currency = document.getElementById('edit-acc-currency').value;
   acc.balance = parseFloat(document.getElementById('edit-acc-balance').value) || 0;
+  if (acc.type === 'credit') acc.billingDay = parseInt(document.getElementById('edit-acc-billing-day').value) || 12;
+  else delete acc.billingDay;
   hideModal('editAccount'); saveState(); render();
 }
 function deleteAccount() {
   const id  = document.getElementById('edit-acc-id').value;
   const acc = state.accounts.find(a => a.id === id);
   if (!acc || !confirm(`确认删除账户「${acc.name}」？`)) return;
-  state.accounts = state.accounts.filter(a => a.id !== id);
-  state.incomes  = state.incomes.filter(i => i.accountId !== id);
+  state.accounts    = state.accounts.filter(a => a.id !== id);
+  state.incomes     = state.incomes.filter(i => i.accountId !== id);
+  // Remove linked CC payment category (and group if now empty)
+  state.categories  = state.categories.filter(c => c.creditCardAccountId !== id);
+  const ccGroup = state.groups.find(g => g.isCreditCardGroup);
+  if (ccGroup && !state.categories.some(c => c.groupId === ccGroup.id)) {
+    state.groups = state.groups.filter(g => g.id !== ccGroup.id);
+  }
+  if (state.selectedCatId && !state.categories.find(c => c.id === state.selectedCatId)) closeDetailPanel();
   hideModal('editAccount'); saveState(); render();
 }
 
@@ -1396,7 +2786,18 @@ function addAccount() {
   const currency = document.getElementById('acc-currency').value;
   const balance  = parseFloat(document.getElementById('acc-balance').value) || 0;
   if (!name) { alert('请输入账户名称'); return; }
-  state.accounts.push({ id: uid(), name, type, currency, balance });
+  const newId = uid();
+  const billingDay = type === 'credit' ? (parseInt(document.getElementById('acc-billing-day').value) || 12) : undefined;
+  state.accounts.push({ id: newId, name, type, currency, balance, ...(billingDay ? { billingDay } : {}) });
+  // Auto-create Credit Card Payments category for credit card accounts
+  if (type === 'credit') {
+    let ccGroup = state.groups.find(g => g.isCreditCardGroup);
+    if (!ccGroup) {
+      ccGroup = { id: uid(), name: 'Credit Card Payments', isCreditCardGroup: true };
+      state.groups.push(ccGroup);
+    }
+    state.categories.push({ id: uid(), groupId: ccGroup.id, name, creditCardAccountId: newId });
+  }
   hideModal('addAccount');
   document.getElementById('acc-name').value = '';
   document.getElementById('acc-balance').value = '';
