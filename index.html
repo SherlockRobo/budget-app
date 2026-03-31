@@ -889,9 +889,17 @@ const CUR_DECIMALS = { JPY: 0 };
 
 const CHANGELOG = [
   {
-    version: 'V0.12',
+    version: 'V0.13',
     date: '2026-03-31',
     latest: true,
+    changes: [
+      'Bug 修复：添加收入后 Reflect 报表即时刷新，无需手动切换页签',
+    ]
+  },
+  {
+    version: 'V0.12',
+    date: '2026-03-31',
+    latest: false,
     changes: [
       '信用卡账单日设置：添加/编辑信用卡账户时可设置账单日（默认 12 号）',
       '双周期账单统计：详情面板新增「上期账单」与「本期账单」分段，按账单日自动划分消费区间',
@@ -1654,6 +1662,9 @@ function render() {
 
   // Accounts tab
   renderAccountsTab();
+
+  // Reflect — re-render if currently active so income/tx changes show immediately
+  if (document.getElementById('panel-reflect')?.classList.contains('active')) renderReflect();
 
   // Changelog
   renderChangelog();
